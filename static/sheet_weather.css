@@ -1,0 +1,179 @@
+/* Arrière-plan */
+body {
+    background-color: #e0f7fa; /* Bleu clair évoquant le ciel */
+    font-family: Arial, sans-serif; /* Police générale */
+    margin: 0;
+    padding: 0;
+}
+
+/* Titres */
+h1, h2, h3 {
+    color: #2d56da; 
+    font-family: 'Roboto', sans-serif; /* Une police différente pour les titres */
+    text-align: center;
+    margin: 20px 0;
+}
+
+h1 {
+    font-size: 2.5em; /* Taille importante pour le titre principal */
+}
+
+h2 {
+    font-size: 2em; /* Taille pour les sous-titres */
+}
+
+h3 {
+    font-size: 1.5em; /* Taille pour des sections spécifiques */
+}
+
+/* Paragraphes */
+p {
+    color: #004d40; /* Texte foncé mais doux pour une lecture confortable */
+    font-size: 1.2em; /* Taille standard légèrement agrandie pour le confort */
+    line-height: 1.6; /* Espacement pour améliorer la lisibilité */
+    margin: 10px 20px;
+}
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}  
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+    background-color: #ccc;
+}
+.content {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 10%; /* Utilise 10% de la largeur disponible */
+    min-width: auto;
+    border-collapse: collapse; /* Élimine les espaces entre les cellules */
+    table-layout: auto; /* Les colonnes s'adaptent au contenu, y compris les titres */
+}
+
+th, td {
+    text-align: center; /* Centre le contenu des cellules */
+    padding: 5px 10px; /* Espacement interne pour une meilleure lisibilité */
+    border: 1px solid #ddd; /* Bordure légère autour des cellules */
+    /* width: 1%; */
+}
+
+th {
+    background-color: #2874A6; /* Fond des titres de colonnes */
+    color: white; /* Texte des titres de colonnes */
+    font-weight: bold; /* Texte en gras */
+    white-space: nowrap; /* Empêche le texte de se diviser en plusieurs lignes */
+}
+
+td {
+    white-space: nowrap; /* Empêche également le texte des cellules de se diviser en plusieurs lignes */
+}
+
+
+/* Température et icônes */
+.temperature {
+    font-size: 1.5em;
+    color: #d32f2f; /* Rouge pour attirer l'attention sur la température */
+    font-weight: bold;
+}
+
+.weather-icon {
+    width: 50px;
+    height: 50px;
+    margin: 10px 0;
+}
+
+/* Prévisions détaillées */
+.details {
+    font-size: 1em;
+    color: #004d40;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.details div {
+    text-align: center;
+}
+
+
+/* Blocs de prévisions 
+.forecast-block {
+    background-color: #ffffff; /* Fond blanc pour contraster avec l'arrière-plan 
+    border: 2px solid #004d40; /* Bordure verte foncée 
+    border-radius: 10px; /* Angles arrondis 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile pour un effet de profondeur 
+    display: flex;
+    display: flex;
+    flex-wrap: wrap; /* Permet le retour à la ligne si les divs dépassent 
+    gap: 10px; /* Espacement entre les divs 
+    justify-content: space-around; /* Centrer ou répartir les divs 
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 200px; /* Largeur maximale 
+    /* text-align: center; Centrer le contenu 
+}
+
+/* Style général pour le menu 
+.menu {
+    background-color: #00796b; /* Couleur de fond 
+    overflow: hidden;
+    display: flex;
+}
+
+.menu a {
+    color: white; /* Couleur du texte 
+    text-decoration: none; /* Pas de soulignement 
+    padding: 14px 20px;
+    display: block; /* Pour occuper tout l'espace 
+    text-align: center;
+}
+
+.menu a:hover {
+    background-color: #004d40; /* Couleur au survol 
+}
+
+/* Style pour les sous-menus 
+.dropdown {
+    position: relative; /* Nécessaire pour le positionnement absolu 
+}
+
+.dropdown-content {
+    display: none; /* Caché par défaut 
+    position: absolute; /* Positionné sous l'élément parent 
+    background-color: #ffffff; /* Fond du sous-menu 
+    min-width: 40px; /* Largeur minimale 
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Effet ombre 
+    z-index: 1; /* Devant les autres éléments 
+}
+
+.dropdown-content a {
+    color: #00796b; /* Couleur du lien 
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block; /* Chaque lien sur une nouvelle ligne 
+}
+
+.dropdown-content a:hover {
+    background-color: #e0f2f1; /* Couleur au survol 
+}
+
+/* Afficher le sous-menu au survol 
+.dropdown:hover .dropdown-content {
+    display: block;
+}*/
