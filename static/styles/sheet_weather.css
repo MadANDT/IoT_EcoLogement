@@ -37,10 +37,11 @@ p {
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
     background-color: #eee;
+    box-sizing: border-box; /*inclure les bordures et le padding dans le calcul de la largeur*/
     color: #444;
     cursor: pointer;
     padding: 18px;
-    width: 100%;
+    width: 50%;
     border: none;
     text-align: left;
     outline: none;
@@ -53,16 +54,38 @@ p {
 .content {
     padding: 0 18px;
     background-color: white;
+    box-sizing: border-box;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
     margin-bottom: 10px;
+    width: 25%;
+}
+
+.forecast-block {
+    width: 50%;
+
+    /* background-color: #ffffff; /* Fond blanc pour contraster avec l'arrière-plan  */
+    /* border: 2px solid #004d40; /* Bordure verte foncée  */
+    /* border-radius: 10px; /* Angles arrondis  */
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile pour un effet de profondeur  */
+    /* display: flex; */
+    /* display: flex; */
+    /* flex-wrap: wrap; /* Permet le retour à la ligne si les divs dépassent  */
+    /* gap: 10px; /* Espacement entre les divs  */
+    /* justify-content: space-around; /* Centrer ou répartir les divs  */
+    /* padding: 20px; */
+    /* margin: 20px auto; */
+    /* max-width: 200px; /* Largeur maximale  */
+    /* text-align: center; Centrer le contenu 
 }
 
 table {
     width: 10%; /* Utilise 10% de la largeur disponible */
     min-width: auto;
     border-collapse: collapse; /* Élimine les espaces entre les cellules */
+    margin-top: 5px;
+    margin-bottom: 5px;
     table-layout: auto; /* Les colonnes s'adaptent au contenu, y compris les titres */
 }
 

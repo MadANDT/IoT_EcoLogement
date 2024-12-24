@@ -272,7 +272,7 @@ async def get_mesures():
     conn.close()
     return [dict(mesure) for mesure in mesures]
 
-@app.get("/mesures/meteo/", response_class=HTMLResponse)
+@app.get("/meteo/", response_class=HTMLResponse)
 async def afficher_tableau(request: Request):
     # Mettre en place les variables à passer au template
     data = meteo_API.retreive_weather_data()
@@ -280,12 +280,12 @@ async def afficher_tableau(request: Request):
     days_and_colors = [["Aujourd'hui (J + 0)",  "#2874A6"],
                        ["Demain (J + 1)",       "#2E86C1"],
                        ["Après-demain (J + 2)", "#2980B9"],
-                       ["Dans 3 jours (J + 3)",                "#5499C7"],
-                       ["Dans 4 jours (J + 4)",                "#7FB3D5"],
-                       ["Dans 5 jours (J + 5)",                "#A9CCE3"],
-                       ["Dans 6 jours (J + 6)",                "#E0F7FA"]]
+                       ["Dans 3 jours (J + 3)", "#5499C7"],
+                       ["Dans 4 jours (J + 4)", "#7FB3D5"],
+                       ["Dans 5 jours (J + 5)", "#A9CCE3"],
+                       ["Dans 6 jours (J + 6)", "#E0F7FA"]]
     temperatures_max_min = []
-    for r in range(7):  #parce qu'il y a setp jours t'as capté
+    for r in range(7):  #parce qu'il y a sept jours 
         temp = data_dict[r * 24 + 1: (r + 1) * 24 + 1]
         temperatures_max_min.append([max(temp, key = itemgetter('temperature_2m'))['temperature_2m'], min(temp, key = itemgetter('temperature_2m'))['temperature_2m']])
     # Passer les données et la requête au template
