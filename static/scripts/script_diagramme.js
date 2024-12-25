@@ -44,7 +44,7 @@ function drawChart(){
 
 
   // Set chart options
-  var options = {'title':'Répartition des consommations par facture',
+  var options = {'title':'Répartition des consommations par facture du bâtiment #@@@',
                  'width':600,
                  'height':400,
                  'is3D': true};

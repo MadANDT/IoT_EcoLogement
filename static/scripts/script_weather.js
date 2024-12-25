@@ -13,3 +13,21 @@ for (i = 0; i < coll.length; i++) {
     }
   });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleButton = document.getElementById("togglePastHours");
+  const pastHourRows = document.querySelectorAll(".past-hour");
+
+  toggleButton.addEventListener("click", function () {
+      pastHourRows.forEach(row => {
+          row.classList.toggle("hidden");
+      });
+
+      // Modifier le texte du bouton en fonction de l'état
+      if (toggleButton.textContent === "Afficher toutes les prévisions") {
+          toggleButton.textContent = "Masquer les heures passées";
+      } else {
+          toggleButton.textContent = "Afficher toutes les prévisions";
+      }
+  });
+});

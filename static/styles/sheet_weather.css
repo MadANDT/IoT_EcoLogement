@@ -10,7 +10,7 @@ body {
 h1, h2, h3 {
     color: #2d56da; 
     font-family: 'Roboto', sans-serif; /* Une police différente pour les titres */
-    text-align: center;
+    text-align: justify;
     margin: 20px 0;
 }
 
@@ -34,14 +34,19 @@ p {
     margin: 10px 20px;
 }
 
+.hidden {
+    display: none;
+}
+
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
     background-color: #eee;
     box-sizing: border-box; /*inclure les bordures et le padding dans le calcul de la largeur*/
+    border-radius: 10px; /* Angles arrondis*/ 
     color: #444;
     cursor: pointer;
     padding: 18px;
-    width: 50%;
+    width: 40%;
     border: none;
     text-align: left;
     outline: none;
@@ -55,6 +60,7 @@ p {
     padding: 0 18px;
     background-color: white;
     box-sizing: border-box;
+    border-radius: 5px; /* Angles arrondis*/ 
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
@@ -63,11 +69,10 @@ p {
 }
 
 .forecast-block {
-    width: 50%;
-
+    width: 100%;
     /* background-color: #ffffff; /* Fond blanc pour contraster avec l'arrière-plan  */
     /* border: 2px solid #004d40; /* Bordure verte foncée  */
-    /* border-radius: 10px; /* Angles arrondis  */
+    border-radius: 20px; /* Angles arrondis*/ 
     /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile pour un effet de profondeur  */
     /* display: flex; */
     /* display: flex; */
@@ -77,7 +82,7 @@ p {
     /* padding: 20px; */
     /* margin: 20px auto; */
     /* max-width: 200px; /* Largeur maximale  */
-    /* text-align: center; Centrer le contenu 
+    /* text-align: center; Centrer le contenu */
 }
 
 table {
@@ -107,12 +112,15 @@ td {
     white-space: nowrap; /* Empêche également le texte des cellules de se diviser en plusieurs lignes */
 }
 
-
 /* Température et icônes */
 .temperature {
     font-size: 1.5em;
     color: #d32f2f; /* Rouge pour attirer l'attention sur la température */
     font-weight: bold;
+}
+
+.past-hour {
+    transition: all 0.3s ease;
 }
 
 .weather-icon {

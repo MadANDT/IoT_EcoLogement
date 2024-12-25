@@ -166,6 +166,20 @@ async def get_logements():
     conn.close()                                                    # se déconnecter
     return [dict(logement) for logement in logements]               # renvoi sous forme de dictionnaire  
 
+@app.get("/logements/{id_logement}/consommation/")
+async def conso_page(request: Request, id_logement:int):
+    # Récupérons les factures de la base
+    conn = connection_to_DB()
+    factures = conn.execute(f"SELECT * FROM factures WHERE id_logement={id_logement}").fetchall()    # requêter sur `factures` du logement d'id spécifié
+    conn.close()
+    factures_tronquees = [{"nom": f["nom"], "valeur_consommee": f["valeur_consommee"]} for f in factures]
+    template_data = {"request":             request, 
+                     "factures_tronquees":  factures_tronquees, 
+                     "id_logement":         id_logement} 
+                    #  "temperatures_max_min":    temperatures_max_min,
+                    #  "current_hour":            DATE.datetime.now().hour}
+    return templates.TemplateResponse("building_consumption.html", template_data)
+
 @app.post("/logements/")
 async def add_logement(logement: Logement):
     conn = connection_to_DB()
@@ -273,7 +287,7 @@ async def get_mesures():
     return [dict(mesure) for mesure in mesures]
 
 @app.get("/meteo/", response_class=HTMLResponse)
-async def afficher_tableau(request: Request):
+async def afficher_tableau(request: Request, current_hour_mode: bool = True):
     # Mettre en place les variables à passer au template
     data = meteo_API.retreive_weather_data()
     data_dict = meteo_API.formatting_weather_api_data(data)
@@ -294,7 +308,6 @@ async def afficher_tableau(request: Request):
                      "days_and_colors":         days_and_colors, 
                      "temperatures_max_min":    temperatures_max_min,
                      "current_hour":            DATE.datetime.now().hour}
-    print(f"heure actuelle: {template_data['current_hour']}")
     return templates.TemplateResponse("weather_forecast.html", template_data)
 
 @app.post("/mesures/")

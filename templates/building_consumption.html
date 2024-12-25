@@ -1,0 +1,75 @@
+<!-- EI 4 - IoT
+ ANDRIATSILAVO Matteo -- TP A
+ Fichier HTML des consomamtions d'un logement -->
+ <!DOCTYPE html>
+ <html lang="fr">
+ <head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- <link rel="stylesheet" href={{ url_for('static', path='styles/sheet_weather.css') }}> -->
+   <!-- <script src={{ url_for('static', path='scripts/script_weather.js') }} charset="utf-8" defer="defer"></script> -->
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript" src={{ url_for('static', path="scripts/script_diagramme.js") }} defer></script>
+   <title>Consommation du batîment #{{ id_logement }} • I-Leaf</title>
+   <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
+ </head>
+ <body>
+     <img src={{ url_for('static', path="images/logo_i_leaf_with_name_cropped.png") }}>
+     <!-- <h1 id = "flash">Consommation du bâtiment</h1>
+     {% for d in range(days_and_colors | length) %}
+     <forecast-block class="forecast-block">
+         <button type="button" class="collapsible" style="border-left:10px solid {{ days_and_colors[d][1] }}">
+             <span style="font-size: 2em"><b><em>{{ days_and_colors[d][0] }}</em></b></span>
+             <span class="temperature" style="margin-left: 16px; border-left:5px solid grey">&nbsp Températures: {{ temperatures_max_min[d][0] }} °C / {{ temperatures_max_min[d][1] }} 
+                 {% if d == 0 %}
+                     <span>°C, actuellement ({{ current_hour }} H): {{ data[current_hour]['temperature_2m'] }} °C </span>
+                 {% else %}
+                     <span>°C</span>
+                 {% endif %}
+             </span>
+         </button>
+         <div class="content" style="border-left:10px solid {{ days_and_colors[d][1] }}">
+             {% if d == 0 %}
+                 <button id="togglePastHours" type="button">Afficher toutes les prévisions</button>
+             {% endif %}
+             <table>
+                 <tr>
+                 <th>Heure</th><th>Température</th><th>T. ressentie</th><th>Risque de précipitations</th><th>Jour/Nuit</th>
+                 </tr>
+                 {% if d == 0 %}
+                     {% for row in data[1: (d + 1) * 24 + 1] %} 
+                     <tr class="{{ 'past-hour hidden' if loop.index0 < current_hour else '' }}">
+                         <td>{{ row['date'] }} H</td>
+                         <td>{{ row['temperature_2m'] }} °C</td>
+                         <td>{{ row['apparent_temperature'] }} °C</td>
+                         <td>{{ row['precipitation_probability'] }} %</td>
+                         <td>{{ row['is_day'] }}</td>
+                     </tr>
+                     {% endfor %}
+                 {% else %}
+                     {% for row in data[(d * 24) + 1: (d + 1) * 24 + 1] %}
+                     <tr>
+                         <td>{{ row['date'] }} H</td>
+                         <td>{{ row['temperature_2m'] }} °C</td>
+                         <td>{{ row['apparent_temperature'] }} °C</td>
+                         <td>{{ row['precipitation_probability'] }} %</td>
+                         <td>{{ row['is_day'] }}</td>
+                     </tr>
+                     {% endfor %}
+                 {% endif %}
+             </table>
+         </div>
+     </forecast-block>
+     {% endfor %} -->
+      
+          <!--Div that will hold the pie chart-->
+          <div id="chart_div"></div>
+      
+          <!-- Transfert des données JSON via une balise script -->
+          <script type="application/json" id="factures_tronquees">
+            {{ factures_tronquees | tojson | safe }}
+          </script>
+
+ </body>
+ </html>
