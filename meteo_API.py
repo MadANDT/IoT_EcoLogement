@@ -8,10 +8,12 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 
-def retreive_weather_data(starting_row: int = 1, ending_row: int = -1):
+def retreive_weather_data(latitude: float, longitude: float, starting_row: int = 1, ending_row: int = -1):
 	"""Récupère les données de l'API météo sur 7 jours de prévisions, sous forme de dataframe Pandas.
-	Paramètres: starting_row: ligne (heure) à laquelle il faut commencer à insérer les données,
-				ending_row: ligne (heure) à laquelle il faut arrêter d'insérer les données.
+	Paramètres: `latitude`: float, coordonnée en latitude où s'effectuent les mesures,
+      			`longitude`: float, coordonnée en longitude où s'effectuent les mesures,
+      			`starting_row`: ligne (heure) à laquelle il faut commencer à insérer les données,
+				`ending_row`: ligne (heure) à laquelle il faut arrêter d'insérer les données.
 	Sortie: une dataframe type Pandas"""
 	# Setup the Open-Meteo API client with cache and retry on error
 	cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
@@ -22,8 +24,8 @@ def retreive_weather_data(starting_row: int = 1, ending_row: int = -1):
 	# The order of variables in hourly or daily is important to assign them correctly below
 	url = "https://api.open-meteo.com/v1/forecast"
 	params = {
-		"latitude": 48.8534,
-		"longitude": 2.3488,
+		"latitude": latitude,	#ex: 48.8534,
+		"longitude": longitude, #ex: 2.3488,
 		"hourly": ["temperature_2m", "apparent_temperature", "precipitation_probability", "is_day"],
 		"timezone": "auto"
 	}
