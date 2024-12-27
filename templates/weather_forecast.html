@@ -15,6 +15,7 @@
 <body>
     <img src={{ url_for('static', path="images/logo_i_leaf_with_name_cropped.png") }}>
     <h1 id = "flash" >Prévisions météo pour les 7 prochains jours</h1>
+    <h2> Logement: "{{ building_name }}"</h2>
     {% for d in range(days_and_colors | length) %}
     <forecast-block class="forecast-block">
         <button type="button" class="collapsible" style="border-left:10px solid {{ days_and_colors[d][1] }}">
