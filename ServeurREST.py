@@ -37,6 +37,23 @@ def get_table_last_row(table: str):
     conn.close()
     return last_line
 
+def rowNotFoundError(Exception):
+    """Exception dans le cas d'une ligne invalide ou non trouvée."""
+    pass
+
+def get_row_table_with_id(table: str, id: int):
+    """ Récupère la ligne de la `table` selon son `id` depuis la BdD.
+    Entrées: `table` (string, nom de la table à interroger), `id` (int, identifiant du logement dans la base)
+    Sorties: `row` (dictionnaire, ligne décrivant l'élément d'identifiant `id` dans la `table`)"""
+    conn = connection_to_DB()
+    c = conn.cursor()
+    req = [dict(column) for column in c.execute(f"SELECT * FROM {table} WHERE id = {id}")]
+    conn.close()
+    if (not req) or (req == []):
+        row = req[0]
+        return row
+    return None
+
 # def get_types_capteurs_last_row():
 #     """ Récupérer la dernière ligne de la table `types_capteurs`"""
 #     conn = connection_to_DB()
@@ -53,50 +70,82 @@ def get_table_last_row(table: str):
 #     tax: float | None = None
 # ## -------------------------------------------
 class Logement(BaseModel):
-    id:                 int = get_table_last_row("logements")['id'] + 1
-    adresse:            str = ""
-    numero_telephone:   str = ""
-    adresse_ip:         str = ""
-    date_insertion:     DATE.datetime = DATE.datetime.now().replace(microsecond = 0)
+    def __init__(self, identifiant: int) -> None:
+        """Instancier un logement en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_logement = get_row_table_with_id("logements", identifiant)
+        if infos_logement: 
+            self.id = infos_logement['id']
+            self.nom = infos_logement['nom']
+            self.adresse = infos_logement['adresse']
+            self.numero_telephone = infos_logement['numero_telephone'] if infos_logement['numero_telephone'] else ""
+            self.adresse_IP = infos_logement['adresse_IP'] if infos_logement['adresse_IP'] else ""
+            self.coordonnee_latitude = infos_logement['coordonnee_latitude'] if infos_logement['coordonnee_latitude'] else 0.0
+            self.coordonnee_longitude = infos_logement['coordonnee_longitude'] if infos_logement['coordonnee_longitude'] else 0.0
+            self.date_insertion = infos_logement['date_insertion']
 
 class Piece(BaseModel):
-    id:                 int = get_table_last_row("pieces")['id'] + 1
-    id_logement:        int
-    nom:                str = ""
-    coordonnee_x:       int = 0
-    coordonnee_y:       int = 0
-    coordonnee_z:       int = 0
+    def __init__(self, identifiant: int) -> None:
+        """Instancier une pièce en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_piece = get_row_table_with_id("pieces", identifiant) 
+        if infos_piece:
+            self.id = infos_piece['id']
+            self.id_logement = infos_piece['id_logement']
+            self.nom = infos_piece['nom']
+            self.coordonnee_x = infos_piece['coordonnee_x']
+            self.coordonnee_y = infos_piece['coordonnee_y']
+            self.coordonnee_z = infos_piece['coordonnee_z']
 
 class Facture(BaseModel):
-    id:                 int = get_table_last_row("factures")['id'] + 1
-    id_logement:        int
-    nom:                str = ""
-    montant:            float = 0.0
-    valeur_consommee:   float
-    date_emission:      DATE.datetime = DATE.datetime.now().replace(microsecond = 0)
+    def __init__(self, identifiant: int) -> None:
+        """Instancier une facture en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_facture = get_row_table_with_id("factures", identifiant) 
+        if infos_facture:
+            self.id = infos_facture['id']
+            self.id_logement = infos_facture['id_logement']
+            self.nom = infos_facture['nom']
+            self.montant = infos_facture['montant']
+            self.valeur_consommee = infos_facture['valeur_consommee'] if infos_facture['valeur_consommee'] else 0.0
 
 class Capteur(BaseModel):
-    id:                         int = get_table_last_row("capteurs")['id'] + 1
-    id_type_capteur:            int
-    reference_commerciale:      str = ""
-    id_piece:                   int
-    port_communication_serveur: str = ""
-    date_insertion:             DATE.datetime = DATE.datetime.now().replace(microsecond = 0)
-
+    def __init__(self, identifiant: int) -> None:
+        """Instancier un capteur en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_capteur = get_row_table_with_id("capteurs", identifiant) 
+        if infos_capteur:
+            self.id = infos_capteur['id']
+            self.id_type_capteur = infos_capteur['id_type_capteur']
+            self.id_piece = infos_capteur['id_piece'] if infos_capteur['id_piece'] else -1
+            self.port_communication_serveur = infos_capteur['port_communication_serveur'] if infos_capteur['port_communication_serveur'] else 80
+            self.date_insertion = infos_capteur['date_insertion']
+    
 class Mesure(BaseModel):
-    id:                 int = get_table_last_row("mesures")['id'] + 1
-    valeur:             float = 0.0
-    id_capteur:         int
-    date_insertion:     DATE.datetime = DATE.datetime.now().replace(microsecond = 0)
+    def __init__(self, identifiant: int) -> None:
+        """Instancier une mesure en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_mesure = get_row_table_with_id("mesures", identifiant) 
+        if infos_mesure:
+            self.id = infos_mesure['id']
+            self.valeur = infos_mesure['valeur']
+            self.id_capteur = infos_mesure['id_capteur']
+            self.date_insertion = infos_mesure['date_insertion']
 
 class Type_Capteur(BaseModel):
-    id:                 int = get_table_last_row("types_capteurs")['id'] + 1
-    type_mesure:        str = ""
-    unite_mesure:       str = ""
-    plage_precision:    list[float, float] = [0.0, 0.0]
-    autres_infos:       str = ""
-
-
+    def __init__(self, identifiant: int) -> None:
+        """Instancier un capteur en récupérant toutes ses infos dans la base à l'aide de son identifiant (`id`)."""
+        super().__init__()
+        infos_type_capteur = get_row_table_with_id("types_capteurs", identifiant)
+        if infos_type_capteur:
+            self.id = infos_type_capteur['id']
+            self.cap_ou_act = infos_type_capteur['cap_ou_act']
+            self.type_mesure = infos_type_capteur['type_mesure'] if infos_type_capteur['type_mesure'] else ''
+            self.unite_mesure = infos_type_capteur['unite_mesure'] if infos_type_capteur['unite_mesure'] else ''
+            self.plage_precision = infos_type_capteur['plage_precision'] if infos_type_capteur['plage_precision'] else ''
+            self.reference_commerciale = infos_type_capteur['reference_commerciale']
+            self.autres_infos = infos_type_capteur['autres_infos'] if infos_type_capteur['autres_infos'] else ""
+   
 ## 1
 app = FastAPI()
 @app.get("/")
@@ -179,6 +228,33 @@ async def conso_page(request: Request, id_logement:int):
                     #  "temperatures_max_min":    temperatures_max_min,
                     #  "current_hour":            DATE.datetime.now().hour}
     return templates.TemplateResponse("building_consumption.html", template_data)
+
+@app.get("/logements/{id_logement}/meteo/")
+async def logement_meteo_page(request: Request, id_logement: int):
+    """ Affiche la page des prévisions météo du logement d'identifant `id_logement`."""
+    logement = Logement(id_logement)
+    # Mettre en place les variables à passer au template
+    data = meteo_API.retreive_weather_data(logement.coordonnee_latitude, logement.coordonnee_longitude)
+    data_dict = meteo_API.formatting_weather_api_data(data)
+    days_and_colors = [["Aujourd'hui (J + 0)",  "#2874A6"],
+                       ["Demain (J + 1)",       "#2E86C1"],
+                       ["Après-demain (J + 2)", "#2980B9"],
+                       ["Dans 3 jours (J + 3)", "#5499C7"],
+                       ["Dans 4 jours (J + 4)", "#7FB3D5"],
+                       ["Dans 5 jours (J + 5)", "#A9CCE3"],
+                       ["Dans 6 jours (J + 6)", "#E0F7FA"]]
+    temperatures_max_min = []
+    for r in range(7):  #parce qu'il y a sept jours 
+        temp = data_dict[r * 24 + 1: (r + 1) * 24 + 1]
+        temperatures_max_min.append([max(temp, key = itemgetter('temperature_2m'))['temperature_2m'], min(temp, key = itemgetter('temperature_2m'))['temperature_2m']])
+    # Passer les données et la requête au template
+    template_data = {"request":                 request, 
+                     "data":                    data_dict, 
+                     "days_and_colors":         days_and_colors, 
+                     "temperatures_max_min":    temperatures_max_min,
+                     "current_hour":            DATE.datetime.now().hour}
+    return templates.TemplateResponse("weather_forecast.html", template_data)
+    pass
 
 @app.post("/logements/")
 async def add_logement(logement: Logement):
