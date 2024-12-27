@@ -1,0 +1,14 @@
+cap_ou_act,type_mesure,unite_mesure,plage_precision,reference_commerciale,autres_infos
+0,temperature,°C,0.5°C,DHT22,Capteur numérique de température mesurant également l'humidité
+0,temperature,°C,0.5°C,DS18B20,Capteur numérique de température étanche idéal pour des applications variées
+0,humidite,%,2%,DHT22,Capteur d'humidité économique mesurant également la température
+0,humidite,%,1.5%,SHT31,Capteur d'humidité de précision supérieure et utilisé dans des applications industrielles
+0,luminosite,lx,10%,BH1750,Capteur de luminositét analogique simple d'utilisation
+0,luminosite,lx,5%,TSL2561,Capteur de luminosité offrant des fonctionnalités avancées dont la mesure de la lumière infrarouge
+0,proximite,N/A,N/A,HC-SR501,Capteur de présence détectant le mouvement via infrarouge passif 
+0,proximite,mm,1%,VL53L0X,Capteur de proximité utilisant la technologie de temps de vol pour mesurer la distance
+0,debitmetre,L/min,10%,YF-S201,Capteur de débit de fluide couramment utilisé pour des applications d'eau
+0,niveau,cm,N/A,SEN-13322,Capteur de niveau de fluide à flotteur
+1,N/A,N/A,N/A,LINAK,Actionneur linéaires pour ouvrir ou fermer des fenêtres
+1,N/A,N/A,N/A,SOMFY,Actionneur type motoréducteur pour volets roulants
+1,N/A,L/min,5%,FS300A,Actionneur de contrôle de débit utilisé pour mesurer le débit d'eau dans des systèmes de gestion de l'eau
