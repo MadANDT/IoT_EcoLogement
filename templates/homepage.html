@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Logement Éco-Responsable</title>
+    <link rel="stylesheet" href={{ url_for('static', path='styles/sheet_homepage.css') }}>
+    <script src={{ url_for('static', path='scripts/script_homepage.js') }} charset="utf-8" defer="defer"></script>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="navbar">
+        <div>
+            <a href="#">Accueil</a>
+            <a href="#">Gestion de l'énergie</a>
+            <a href="#">Statistiques</a>
+            <div class="menu">
+                <a href="#">Paramètres ▼</a>
+                <div class="dropdown">
+                    <a href="#">Profil</a>
+                    <a href="#">Préférences</a>
+                    <a href="#">Aide</a>
+                </div>
+            </div>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container">
+        <img src={{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }} alt="Logo de l'application" class="logo">
+        <h1>Bienvenue dans votre logement éco-responsable</h1>
+        <p>Optimisez et gérez votre consommation énergétique en toute simplicité.</p>
+        <img src="eolienne.png" alt="Image animée d'une éolienne" class="animated-image">
+    </div>
+
+    <script>
+        
+    </script>
+</body>
+</html>
+<!--  
+<nav class="navbar">
+        <a href="accueil.html">Accueil</a>
+        <a href="services.html">Services</a>
+        <a href="contact.html">Contact</a>
+        <button class="button" onclick="window.location.href='https://exemple.com';">Aller à Exemple.com</button>
+    </nav>
+<button onclick="window.location.href='https://www.exemple.com';">Cliquez ici pour aller à une autre page</button>
+ -->

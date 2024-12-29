@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Image de fond dynamique */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(to bottom, #87CEEB, #FFFFFF);
+    animation: backgroundAnimation 20s infinite alternate;
+}
+
+@keyframes backgroundAnimation {
+    0% { background: linear-gradient(to bottom, #87CEEB, #FFFFFF); }
+    50% { background: linear-gradient(to bottom, #FFD700, #87CEEB); }
+    100% { background: linear-gradient(to bottom, #87CEEB, #FFFFFF); }
+}
+
+/* Barre de navigation */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4CAF50;
+    padding: 10px 20px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+}
+
+.navbar a:hover {
+    background-color: #45a049;
+}
+
+.menu {
+    position: relative;
+}
+
+.menu:hover .dropdown {
+    display: block;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background-color: #4CAF50;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown a {
+    display: block;
+    padding: 10px;
+}
+
+/* Contenu principal */
+.container {
+    text-align: center;
+    padding: 50px;
+    color: #333;
+}
+
+.logo {
+    width: 100px;
+}
+
+.animated-image {
+    width: 300px;
+    animation: spin 5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

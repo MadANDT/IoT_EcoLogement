@@ -470,5 +470,7 @@ async def homepage(request: Request):
 @app.get("/accueil/")
 async def homepage2(request: Request):
     # Passer les données et la requête au template
-    template_data = {"request": request}
+    housing = get_logements()
+    template_data = {"request": request, 
+                     "housing": housing}
     return templates.TemplateResponse("homepage2.html", template_data)

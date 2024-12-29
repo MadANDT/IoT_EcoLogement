@@ -34,6 +34,52 @@
         </div>
     </div>
 
-    <script src={{ url_for('static', path='scripts/script_homepage2.js') }}></script>
+    <!-- <script src={{ url_for('static', path='scripts/script_homepage2.js') }}></script> -->
+    <script>
+        // Sélection des éléments du DOM
+        const circles = document.querySelectorAll('.circle');
+        const circleContainer = document.querySelector('.circle-container');
+        // Créer un menu déroulant et un bouton d’envoi
+        const dropdownMenu = document.createElement('select');
+        dropdownMenu.id = 'dropdown-menu';
+        dropdownMenu.innerHTML = `
+            <option value="">-- Choisissez une option --</option>
+            {% for logement in housing %}
+                <option value="{{ logement['id']}}">{{ logement['id'] }}) {{ logement['nom'] }}</option>
+            {% endfor %}
+        `;
+        const submitButton = document.createElement('button');
+        submitButton.id = 'submit-button';
+        submitButton.textContent = 'Envoyer';
+        submitButton.disabled = true; // Désactivé jusqu'à ce qu'une option soit choisie
+        // Fonction pour cacher les cercles sauf celui cliqué
+        function hideOtherCircles(clickedCircle) {
+            circles.forEach(circle => {
+                if (circle !== clickedCircle) {
+                    circle.style.display = 'none';
+                }
+            });
+        }
+        // Activer ou désactiver le bouton selon la sélection
+        dropdownMenu.addEventListener('change', () => {
+            submitButton.disabled = dropdownMenu.value === '';
+        });
+        // Ajouter un événement de clic pour chaque cercle
+        circles.forEach(circle => {
+            circle.addEventListener('click', function () {
+                hideOtherCircles(this); // Cacher les autres cercles
+                // this.style.display = 'none'; // Laisser le cercle cliqué affiché
+                // Afficher le menu déroulant et le bouton
+                circleContainer.appendChild(dropdownMenu);
+                circleContainer.appendChild(submitButton);
+            });
+        });
+        // Ajouter un événement au bouton pour la redirection
+        submitButton.addEventListener('click', () => {
+            if (dropdownMenu.value !== '') {
+                window.location.href = `/logements/${dropdownMenu.value}/meteo/`;
+            }
+        });
+    </script>
 </body>
 </html>

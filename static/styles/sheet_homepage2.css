@@ -102,3 +102,30 @@ body, html {
 .circle:hover .text {
     display: block;
 }
+
+/* Style pour le menu déroulant */
+#dropdown-menu {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 200px;
+}
+
+/* Style pour le bouton d’envoi */
+#submit-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#submit-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
