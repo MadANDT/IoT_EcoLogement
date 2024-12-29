@@ -326,14 +326,14 @@ def init_capteurs(c: sqlite3.Connection.cursor, nb_capteurs_max: int = 2):
         id_types_capteurs_a_ajouter = [liste_types_capteurs[R.randint(0, nb_types_capteurs - 1)]['id'] for _ in range(nb_capteurs)]
         cap_ou_act = [dict(row) for row in c.execute(f"SELECT id, cap_ou_act FROM types_capteurs") if row['id'] in id_types_capteurs_a_ajouter]
         capteurs_a_ajouter = [(_['id'], id_piece['id'], 80) for _ in cap_ou_act]    # Port 80: typique pour la communication web
-        c.executemany(f"INSERT INTO capteurs(id_type_capteur, id_piece, port_communication_serveur) VALUES (?, ?)", capteurs_a_ajouter)
+        c.executemany(f"INSERT INTO capteurs(id_type_capteur, id_piece, port_communication_serveur) VALUES (?, ?, ?)", capteurs_a_ajouter)
 
 
 # ==== FIN MES FONCTIONS ==== #
 
 
 
-if __name__ == "main":
+def main():
     # Ouverture/Initialisation de la base de données
     conn = sqlite3.connect('logement.db')
     conn.row_factory = sqlite3.Row
@@ -370,3 +370,5 @@ if __name__ == "main":
     # Fermeture de la base de données
     conn.commit()
     conn.close()
+
+main()

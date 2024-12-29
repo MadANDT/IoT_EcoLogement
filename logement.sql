@@ -23,13 +23,20 @@ DROP TABLE IF EXISTS types_capteurs;   -- table des types des capteurs et des ac
 CREATE TABLE logements(
     -- ID du logement, unique, ne peut être nul (PK)
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,    
+    -- Nom du logement, limité à 255 caractères, ne peut être nul
+    nom                 TEXT NOT NULL,
     -- Adresse du logement, ne peut être nul
     adresse             TEXT NOT NULL,                      
     -- Numero de téléphone du logement, limité à 12 caractères, ne peut être nul
     numero_telephone    TEXT NOT NULL,                          
     -- Adresse IP du logement, limité à 20 caractères, ne peut être nul 
     adresse_IP          TEXT NOT NULL,                          
-    -- Date d'insertion dans la table, automatiquement renseignée
+    -- Coordonnées du logement:
+    -- | en latitude:
+    coordonnee_latitude FLOAT,
+    -- | en longitude:
+    coordonnee_longitude FLOAT, 
+    -- Date d'insertion dans la table, automatiquement renseignée,
     date_insertion      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -77,12 +84,17 @@ CREATE TABLE factures(
 CREATE TABLE types_capteurs(
     -- ID du capteur/actionneur, unique, ne peut être nul
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    -- Type de mesure réalisée par le capteur, limité à 255 caractères, unique, ne peut être nul 
-    type_mesure     TEXT NOT NULL UNIQUE,
-    -- Unité de mesure du capteur, limitée à 20 caractères (préfixes, puissances, etc.), ne peut être nulle
-    unite_mesure    TEXT NOT NULL,
-    -- Plage de précision de la mesure, limitée à 255 caractères, ne peut être nulle
-    plage_precision TEXT NOT NULL,
+    -- Désigne un capteur (0) ou un actionneur (1)
+    cap_ou_act      INT NOT NULL,
+    -- Type de mesure réalisée par le capteur, limité à 255 caractères, ne peut être nul (N/A si non applicable)
+    type_mesure     TEXT,
+    -- Unité de mesure du capteur, limitée à 20 caractères (préfixes, puissances, etc.), ne peut être nulle (N/A si non applicable)
+    unite_mesure    TEXT,
+    -- Plage de précision de la mesure, limitée à 255 caractères, ne peut être nulle (N/A si non applicable)
+    plage_precision TEXT,
+    -- Référence commerciale, limitée à 255 caractères, non unique car plusieurs capteurs peuvent venir d'un même constructeur,
+    -- et non nulle car un capteur provient forcément d'un constructeur
+    reference_commerciale       TEXT NOT NULL,
     -- Autres informations utiles sur le capteur/actionneur, peuvent être vides si inexistantes
     autres_infos    TEXT
 );
@@ -94,9 +106,6 @@ CREATE TABLE capteurs(
     id                          INTEGER PRIMARY KEY AUTOINCREMENT,
     -- Type du cap_act déterminé par la table `types_capteurs`, non unique et ne peut être nul 
     id_type_capteur             INTEGER NOT NULL,
-    -- Référence commerciale, limitée à 255 caractères, non unique car plusieurs capteurs peuvent venir d'un même constructeur,
-    -- et non nulle car un capteur provient forcément d'un constructeur
-    reference_commerciale       TEXT NOT NULL,
     -- ID de la pièce à laquelle est associé le capteur, peut être nul car une pièce peut ne pas avoir de capteur
     id_piece                    INTEGER,
     -- Numéro du port avec lequel le capteur communique avec le serveur, peut être nul si pas attribué 
