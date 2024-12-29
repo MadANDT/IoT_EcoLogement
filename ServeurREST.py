@@ -238,12 +238,21 @@ templates = Jinja2Templates(directory="templates")
 # ======== Reprise du fichier ======== #
 
 # Logements
-@app.get("/logements/")
-async def get_logements():
+def get_logements():
+    """ Faire une requête sur la base des données, dans la table `logements`."""
     conn = connection_to_DB()                                       # se connecter
-    logements = conn.execute("SELECT * FROM logements").fetchall()  # requêter sur `logements`
+    logements = conn.execute("SELECT id, nom FROM logements").fetchall()  # requêter sur `logements` (id + nom)
     conn.close()                                                    # se déconnecter
     return [dict(logement) for logement in logements]               # renvoi sous forme de dictionnaire  
+
+@app.get("/accueil/logements/")
+async def housing_page(request: Request):
+    """ Affiche la page des logements présents dans la base."""
+    housing = get_logements()
+    template_data = {"request": request, 
+                     "housing": housing}
+    return templates.TemplateResponse("housing.html", template_data)
+
 
 @app.get("/logements/{id_logement}/consommation/")
 async def conso_page(request: Request, id_logement:int):
@@ -393,7 +402,7 @@ async def get_mesures():
     return [dict(mesure) for mesure in mesures]
 
 @app.get("/meteo/", response_class=HTMLResponse)
-async def afficher_tableau(request: Request, current_hour_mode: bool = True):
+async def afficher_tableau(request: Request): #, current_hour_mode: bool = True):
     # Mettre en place les variables à passer au template
     data = meteo_API.retreive_weather_data()
     data_dict = meteo_API.formatting_weather_api_data(data)
@@ -450,3 +459,16 @@ async def add_type_capteur(type_capteur: Type_Capteur):
     conn.close()
     return {"id": type_capteur_id, "message": "Ajout de la pièce effectué."}
 
+# Page d'accueil
+@app.get("/accueil1/")
+async def homepage(request: Request):
+    # Passer les données et la requête au template
+    template_data = {"request": request}
+    return templates.TemplateResponse("homepage.html", template_data)
+
+# Page d'accueil
+@app.get("/accueil/")
+async def homepage2(request: Request):
+    # Passer les données et la requête au template
+    template_data = {"request": request}
+    return templates.TemplateResponse("homepage2.html", template_data)

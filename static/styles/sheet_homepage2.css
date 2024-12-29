@@ -1,0 +1,104 @@
+/* Styles généraux */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Conteneur principal pour la séparation */
+.split-screen {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    /* background-color: #a0ff00; */
+}
+
+/* Zone de texte */
+.text-area {
+    flex: 1;
+    /* background-color: yellowgreen; */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    right: 50%;
+    padding: 20px;
+    text-align: center;
+    z-index: 3;
+}
+
+/* Séparateur oblique */
+.separator {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-color: #A4B97F; /* Bleu */
+    transform: rotate(-30deg);
+    transform-origin: center;
+    z-index: 1;
+    right: -30%;
+}
+
+/* Conteneur des cercles */
+.circle-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* Cercles */
+.circle {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background-color: #3498db;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.circle#home {
+    transform: translate(0%, -75%);
+}
+
+.circle#documents {
+    transform: translate(100%, 75%);
+}
+
+.circle#weather {
+    transform: translate(200%, 250%);
+}
+
+/* Icônes des cercles */
+.icon {
+    font-size: 120px;
+}
+
+/* Texte caché par défaut */
+.text {
+    font-size: 20px;
+    display: none;
+}
+
+/* Survol des cercles */
+.circle:hover {
+    background-color: #e74c3c;
+}
+
+/* Apparition du texte */
+.circle:hover .text {
+    display: block;
+}

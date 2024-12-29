@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href={{ url_for('static', path='styles/sheet_homepage2.css') }}>
+    <title>Accueil • I-Leaf</title>
+  <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
+</head>
+<body>
+    <div class="split-screen">
+        <div class="text-area">
+            <div>
+                <img src={{ url_for('static', path='images/logo_i_leaf_with_name.png') }}>
+            </div>
+            <div>
+                <h1>Bienvenue sur le site de I-Leaf !</h1>
+            </div>
+        </div>
+        <div class="separator"></div>
+        <div class="circle-container">
+            <div class="circle" id="home">
+                <span class="icon">🏠</span>
+                <div class="text">Logements</div>
+            </div>
+            <div class="circle" id="weather">
+                <span class="icon">⛅</span>
+                <div class="text">Prévisions météo</div>
+            </div>
+            <div class="circle" id="documents">
+                <span class="icon">📄</span>
+                <div class="text">Documents / Factures</div>
+            </div>
+        </div>
+    </div>
+
+    <script src={{ url_for('static', path='scripts/script_homepage2.js') }}></script>
+</body>
+</html>

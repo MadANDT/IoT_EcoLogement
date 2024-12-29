@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href={{ url_for('static', path='styles/sheet_housing.css') }}>
+    <script src={{ url_for('static', path='scripts/script_housing.js') }} charset="utf-8" defer="defer"></script>
+    <title>Logements • I-Leaf</title>
+    <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
+</head>
+<body>
+    <h1>Dans quel logement résidez-vous ?</h1>
+    <label for="logement-select">Choisissez un type de logement :</label>
+    <select id="logement-select">
+        {% for logement in housing %}
+            <option value="{{ logement['id'] }}">{{ logement['id'] }}) {{ logement['nom'] }}</option>
+        {% endfor %}
+        <!-- <option value="">Chargement...</option> -->
+    </select>
+
+</body>
+</html>
