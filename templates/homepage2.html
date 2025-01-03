@@ -13,13 +13,19 @@
             <img id="logo" src={{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }}>
         </div>
         <div>
-            <h1>Bienvenue sur le site de I-Leaf !</h1>
+            <h1 style ="font-size: 2em;">Bienvenue sur le site de I-Leaf !</h1>
             <br>
-            <h1>Faut que je rajoute du texte ICI</h1>
+            <h2 style="font-size: 30px; justify-content: end"><b>I-Leaf</b> vous propose une solution de gestion de logement éco-responsable, permettant de suivre en temps réel
+            les <b>prévisions météo spécifiques à votre bâtiment</b> pour optimiser sa consommation énergétique.<br><br>
+            Gérez vos <b>factures</b>, estimez les <b>économies réalisées</b> et accédez à un tableau de bord complet affichant 
+            l'état des capteurs intégrés dans votre logement (luminosité, présence, humidité, température). <br>
+            En combinant données en temps réel et outils de gestion, I-Leaf favorise une prise de décision éclairée
+            et contribue à réduire l'empreinte écologique des habitations.
+            </h2>
         </div>
     </div>
     <div class="circle-container">
-        <div class="circle" id="home">
+        <div class="circle" id="housing">
             <span class="icon">🏠</span>
             <div class="text">Logements</div>
         </div>
@@ -37,103 +43,145 @@
         // Sélection des éléments du DOM
         const circles = document.querySelectorAll('.circle');
         const circleContainer = document.querySelector('.circle-container');
-        // const texts = document.querySelectorAll('.text');
-        const textHome = document.querySelector('#home .text');
-        const textWeather = document.querySelector('#weather .text');
-        const textBill = document.querySelector('#bill .text');
-        // Fonction qui réinitialise les cercles et le fond
-        function resetCirclesAndBackground() {
-            circles.forEach(circle => {
-                circle.classList.remove('not-hovered');
-                circle.style.background = '#A3B87D'; // Couleur initiale des cercles
-            });
-            [textHome, textWeather, textBill].forEach(text => { 
-                text.style.display = 'none'; 
-            });
-            textHome.
-            document.body.style.background = '';    // Réinitialise le fond
-            circleContainer.style.background = '';  // Réinitialise la couleur du conteneur de cercle
-        }
-        // Ajout des événements de survol
-        circles.forEach(circle => {
-            circle.addEventListener('mouseover', function() {
-                resetCirclesAndBackground(); // Réinitialise avant de modifier l'état
-                let backgroundGradient = '';
-                if (this.id === 'home') {
-                    backgroundGradient = 'radial-gradient(circle, #FFD898, #FFEFD5)'; // Dégradé pour "home"
-                    textHome.style.display = 'block';
-                } else if (this.id === 'weather') {
-                    backgroundGradient = 'radial-gradient(circle, #86e1ff, #4ABFF7)'; // Dégradé pour "weather"
-                    textWeather.style.display = 'block';
-                } else if (this.id === 'bill') {
-                    backgroundGradient = 'radial-gradient(circle, #a6b3bc, #87959F)'; // Dégradé pour "bill"
-                    textBill.style.display = 'block';
-                }
-                // Appliquer le dégradé au fond de la page
-                // document.body.style.background = backgroundGradient;
-                document.body.style.backgroundColor = backgroundGradient;
-                // Appliquer le même dégradé au cercle survolé
-                this.style.background = backgroundGradient;
-                // Appliquer le même dégradé à l'élément contenant les cercles
-                circleContainer.style.background = backgroundGradient;
-                
-                this.classList.add('hovered');
-                circles.forEach(otherCircle => {
-                    if (otherCircle !== this) {
-                        otherCircle.classList.add('not-hovered');
-                    }
-                });
-            });
+        const textArea = document.querySelector('.text-area');
+        let clickedCircleCategory = '';
 
-            circle.addEventListener('mouseout', function() {
-                resetCirclesAndBackground();
-                [textHome, textWeather, textBill].forEach(text => { 
-                    text.style.display = 'none'; 
-                });    
+        // Fonction pour réinitialiser la disposition
+        function resetPageState() {
+            // Réafficher tous les cercles
+            circles.forEach(circle => {
+                circle.style.display = 'flex'; // Remet les cercles visibles
+                circle.style.transform = '';
+                circle.style.background = '';
             });
+            // Supprimer le menu déroulant et le bouton s'ils existent
+            const existingDropdown = document.getElementById('dropdown-menu');
+            const existingButton = document.getElementById('submit-button');
+            if (existingDropdown) existingDropdown.remove();
+            if (existingButton) existingButton.remove();
+            clickedCircleCategory = '';
+        }
+        // Ajouter un événement global sur le document pour détecter les clics en dehors
+        document.addEventListener('click', function (event) {
+            const isClickInsideCircle = event.target.closest('.circle'); // Vérifie si le clic est sur un cercle
+            const isClickInsideMenu = event.target.closest('#dropdown-menu'); // Vérifie si le clic est sur le menu
+            const isClickInsideButton = event.target.closest('#submit-button'); // Vérifie si le clic est sur le bouton
+            // Si le clic est en dehors des cercles, du menu, et du bouton
+            if (!isClickInsideCircle && !isClickInsideMenu && !isClickInsideButton) {
+                resetPageState(); // Réinitialiser la page
+            }
         });
 
+        // Fonction qui réinitialise les cercles et le fond
+        function resetCirclesAndBackground() {
+            textArea.style.transform = '';
+            circles.forEach(circle => {
+                circle.classList.remove('not-hovered');
+                circle.style.backgroundColor = '#A3B87D'; // Couleur initiale des cercles
+            });
+            document.body.style.backgroundColor = ''; // Réinitialise le fond
+        }
+    
+        // Fonction pour changer la couleur de fond
+        function changeBackgroundColor(event) {
+            resetCirclesAndBackground(); // Réinitialise avant modification
+            const circle = event.currentTarget;
+            let backgroundGradient = '';
+            clickedCircleCategory = circle.id;
+            if (circle.id === 'housing') {
+                backgroundGradient = 'radial-gradient(circle, #FFD898, #FFEFD5)'; 
+            } else if (circle.id === 'weather') {
+                backgroundGradient = 'radial-gradient(circle, #86e1ff, #4ABFF7)';
+            } else if (circle.id === 'bill') {
+                backgroundGradient = 'radial-gradient(circle, #a6b3bc, #87959F)';
+            }
+            document.body.style.background = backgroundGradient;
+            circle.style.background = backgroundGradient;
+            circle.classList.add('hovered');
+            circles.forEach(otherCircle => {
+                if (otherCircle !== circle) {
+                    otherCircle.classList.add('not-hovered');
+                }
+            });
+        }
+    
+        // Ajout des événements de survol
+        circles.forEach(circle => {
+            circle.addEventListener('mouseover', changeBackgroundColor);
+            circle.addEventListener('mouseout', resetCirclesAndBackground);
+        });
+    
         // Créer un menu déroulant et un bouton d’envoi
         const dropdownMenu = document.createElement('select');
         dropdownMenu.id = 'dropdown-menu';
         dropdownMenu.innerHTML = `
-            <option value="">-- Choisissez une option --</option>
-            {% for logement in housing %}
-                <option value="{{ logement['id']}}">{{ logement['id'] }}) {{ logement['nom'] }}</option>
+            <option value="">• Choisir un logement </option>
+            {% for h in housing %}
+                <option value="{{ h['id'] }}"> {{ h['nom'] }}</option>
             {% endfor %}
-        `;
+            `
+            // <option value="option1">Option 1</option>
+            // <option value="option2">Option 2</option>
+            // <option value="option3">Option 3</option>
+        ;
         const submitButton = document.createElement('button');
         submitButton.id = 'submit-button';
         submitButton.textContent = 'Envoyer';
-        submitButton.disabled = true; // Désactivé jusqu'à ce qu'une option soit choisie
+        submitButton.disabled = true;
+    
         // Fonction pour cacher les cercles sauf celui cliqué
         function hideOtherCircles(clickedCircle) {
+            textArea.style.transform = 'transform(-50%, 0%)';
             circles.forEach(circle => {
                 if (circle !== clickedCircle) {
                     circle.style.display = 'none';
                 }
             });
         }
+    
         // Activer ou désactiver le bouton selon la sélection
         dropdownMenu.addEventListener('change', () => {
             submitButton.disabled = dropdownMenu.value === '';
         });
+    
         // Ajouter un événement de clic pour chaque cercle
         circles.forEach(circle => {
             circle.addEventListener('click', function () {
+                // event.stopPropagation(); // Empêche la propagation pour éviter que le clic soit capté par `document`
                 hideOtherCircles(this); // Cacher les autres cercles
-                // this.style.display = 'none'; // Laisser le cercle cliqué affiché
-                // Afficher le menu déroulant et le bouton
                 circleContainer.appendChild(dropdownMenu);
                 circleContainer.appendChild(submitButton);
+                // Supprimer les instances précédentes de menu déroulant et bouton
+                const existingDropdown = document.getElementById('dropdown-menu');
+                const existingButton = document.getElementById('submit-button');
+                if (existingDropdown) existingDropdown.remove();
+                if (existingButton) existingButton.remove();
+                // Ajouter le menu déroulant et le bouton au conteneur
+                circleContainer.appendChild(dropdownMenu);
+                circleContainer.appendChild(submitButton);
+                // Translater le cercle cliqué, le menu déroulant et le bouton
+                this.style.transform = 'translate(-25%, -125%)';
+                dropdownMenu.style.transform = 'translate(100%, -850%)';
+                submitButton.style.transform = 'translate(150%, -850%)';
             });
         });
+    
         // Ajouter un événement au bouton pour la redirection
         submitButton.addEventListener('click', () => {
-            if (dropdownMenu.value !== '') {
-                window.location.href = `/logements/${dropdownMenu.value}/meteo/`;
+            if (dropdownMenu.value !== '' && clickedCircleCategory !== '') {
+                if (clickedCircleCategory === 'weather'){
+                    window.location.href = `/meteo/${dropdownMenu.value}/`;
+                }
+                if (clickedCircleCategory === 'bill'){
+                    window.location.href = `/factures/${dropdownMenu.value}/`;
+                }
+                if (clickedCircleCategory === 'housing'){
+                    window.location.href = `/logement/${dropdownMenu.value}/`;
+                }      
             }
         });
     </script>
+    
+
 </body>
 </html>
