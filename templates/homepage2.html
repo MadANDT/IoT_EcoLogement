@@ -8,37 +8,91 @@
   <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
 </head>
 <body>
-    <div class="split-screen">
-        <div class="text-area">
-            <div>
-                <img src={{ url_for('static', path='images/logo_i_leaf_with_name.png') }}>
-            </div>
-            <div>
-                <h1>Bienvenue sur le site de I-Leaf !</h1>
-            </div>
+    <div class="text-area">
+        <div>
+            <img id="logo" src={{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }}>
         </div>
-        <div class="separator"></div>
-        <div class="circle-container">
-            <div class="circle" id="home">
-                <span class="icon">🏠</span>
-                <div class="text">Logements</div>
-            </div>
-            <div class="circle" id="weather">
-                <span class="icon">⛅</span>
-                <div class="text">Prévisions météo</div>
-            </div>
-            <div class="circle" id="documents">
-                <span class="icon">📄</span>
-                <div class="text">Documents / Factures</div>
-            </div>
+        <div>
+            <h1>Bienvenue sur le site de I-Leaf !</h1>
+            <br>
+            <h1>Faut que je rajoute du texte ICI</h1>
         </div>
     </div>
-
-    <!-- <script src={{ url_for('static', path='scripts/script_homepage2.js') }}></script> -->
+    <div class="circle-container">
+        <div class="circle" id="home">
+            <span class="icon">🏠</span>
+            <div class="text">Logements</div>
+        </div>
+        <div class="circle" id="weather">
+            <span class="icon">⛅</span>
+            <div class="text">Météo</div>
+        </div>
+        <div class="circle" id="bill">
+            <span class="icon">📄</span>
+            <div class="text">Factures</div>
+        </div>
+    </div>
+    
     <script>
         // Sélection des éléments du DOM
         const circles = document.querySelectorAll('.circle');
         const circleContainer = document.querySelector('.circle-container');
+        // const texts = document.querySelectorAll('.text');
+        const textHome = document.querySelector('#home .text');
+        const textWeather = document.querySelector('#weather .text');
+        const textBill = document.querySelector('#bill .text');
+        // Fonction qui réinitialise les cercles et le fond
+        function resetCirclesAndBackground() {
+            circles.forEach(circle => {
+                circle.classList.remove('not-hovered');
+                circle.style.background = '#A3B87D'; // Couleur initiale des cercles
+            });
+            [textHome, textWeather, textBill].forEach(text => { 
+                text.style.display = 'none'; 
+            });
+            textHome.
+            document.body.style.background = '';    // Réinitialise le fond
+            circleContainer.style.background = '';  // Réinitialise la couleur du conteneur de cercle
+        }
+        // Ajout des événements de survol
+        circles.forEach(circle => {
+            circle.addEventListener('mouseover', function() {
+                resetCirclesAndBackground(); // Réinitialise avant de modifier l'état
+                let backgroundGradient = '';
+                if (this.id === 'home') {
+                    backgroundGradient = 'radial-gradient(circle, #FFD898, #FFEFD5)'; // Dégradé pour "home"
+                    textHome.style.display = 'block';
+                } else if (this.id === 'weather') {
+                    backgroundGradient = 'radial-gradient(circle, #86e1ff, #4ABFF7)'; // Dégradé pour "weather"
+                    textWeather.style.display = 'block';
+                } else if (this.id === 'bill') {
+                    backgroundGradient = 'radial-gradient(circle, #a6b3bc, #87959F)'; // Dégradé pour "bill"
+                    textBill.style.display = 'block';
+                }
+                // Appliquer le dégradé au fond de la page
+                // document.body.style.background = backgroundGradient;
+                document.body.style.backgroundColor = backgroundGradient;
+                // Appliquer le même dégradé au cercle survolé
+                this.style.background = backgroundGradient;
+                // Appliquer le même dégradé à l'élément contenant les cercles
+                circleContainer.style.background = backgroundGradient;
+                
+                this.classList.add('hovered');
+                circles.forEach(otherCircle => {
+                    if (otherCircle !== this) {
+                        otherCircle.classList.add('not-hovered');
+                    }
+                });
+            });
+
+            circle.addEventListener('mouseout', function() {
+                resetCirclesAndBackground();
+                [textHome, textWeather, textBill].forEach(text => { 
+                    text.style.display = 'none'; 
+                });    
+            });
+        });
+
         // Créer un menu déroulant et un bouton d’envoi
         const dropdownMenu = document.createElement('select');
         dropdownMenu.id = 'dropdown-menu';
