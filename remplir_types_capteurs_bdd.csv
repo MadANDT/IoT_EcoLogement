@@ -12,3 +12,4 @@ cap_ou_act,type_mesure,unite_mesure,plage_precision,reference_commerciale,autres
 1,N/A,N/A,N/A,LINAK,Actionneur linéaires pour ouvrir ou fermer des fenêtres
 1,N/A,N/A,N/A,SOMFY,Actionneur type motoréducteur pour volets roulants
 1,N/A,L/min,5%,FS300A,Actionneur de contrôle de débit utilisé pour mesurer le débit d'eau dans des systèmes de gestion de l'eau
+1,N/A,N/A,N/A,TAPO_S210,Actionneur (interrupteur intelligent) de contrôle d'éclairage à distance, capable de programmer des horaires et de détecter la présence
