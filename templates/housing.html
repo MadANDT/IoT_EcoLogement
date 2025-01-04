@@ -32,6 +32,7 @@
                             <div class="sensor-block-temperature">
                                 <p>ID: {{ sensor.id }}</p>
                                 <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                                
                             </div>
                         {% endfor %}
                     </div>
@@ -42,7 +43,7 @@
                     <div class="sensor-grid">
                         {% for sensor in logement_pieces[room]['has_sensor_type']['humidity']['list'] %}
                             <div class="sensor-block-humidity">
-                                <p>ID: {{ sensor.id }}</p>
+                                <p>ID: <span id="sensor-id">{{ sensor.id }}</span></p>
                                 <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
                             </div>
                         {% endfor %}
@@ -54,8 +55,9 @@
                     <div class="sensor-grid">
                         {% for sensor in logement_pieces[room]['has_sensor_type']['light']['list'] %}
                             <div class="sensor-block-light">
-                                <p>ID: {{ sensor.id }}</p>
-                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                                <p>ID: <span id="sensor-id">{{ sensor.id }}</span></p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur if (mesures[sensor.id]['mesure'].valeur != None) else -1 }} 
+                                    {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
                             </div>
                         {% endfor %}
                     </div>
@@ -66,7 +68,7 @@
                     <div class="sensor-grid">
                         {% for sensor in logement_pieces[room]['has_sensor_type']['proximity']['list'] %}
                             <div class="sensor-block-proximity">
-                                <p>ID: {{ sensor.id }}</p>
+                                <p>ID: <span id="sensor-id">{{ sensor.id }}</span></p>
                                 <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
                             </div>
                         {% endfor %}
@@ -78,7 +80,7 @@
                     <div class="sensor-grid">
                         {% for sensor in logement_pieces[room]['has_sensor_type']['flow']['list'] %}
                             <div class="sensor-block-flow">
-                                <p>ID: {{ sensor.id }}</p>
+                                <p>ID: <span id="sensor-id">{{ sensor.id }}</span></p>
                                 <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
                             </div>
                         {% endfor %}
@@ -90,7 +92,7 @@
                     <div class="sensor-grid">
                         {% for sensor in logement_pieces[room]['has_sensor_type']['level']['list'] %}
                             <div class="sensor-block-level">
-                                <p>ID: {{ sensor.id }}</p>
+                                <p>ID: <span id="sensor-id">{{ sensor.id }}</span></p>
                                 <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
                             </div>
                         {% endfor %}
@@ -104,20 +106,32 @@
                     <div class="actuator-grid">
                         {% for actuator in logement_pieces[room]['has_sensor_type']['actuator']['list'] %}
                             <div class="actuator-block">
-                                <p>ID: {{ actuator.id }}</p>
-                                <p>{{ "Actif (ON)" if (mesures[actuator.id]['mesure'].valeur > 0) else "INACTIF (OFF)" }} 
-                                    {% if mesures[actuator.id]['type_cap']['unite_mesure'] %}
-                                        {{ mesures[actuator.id]['type_cap']['unite_mesure'] }} 
-                                    {% endif %}
+                                <p>ID: <span id="actuator-id-{{ actuator.id }}">{{ actuator.id }}</span></p>
+                                <p>
+                                    État: <span id="state-{{ actuator.id }}">{{ "ON" if mesures[actuator.id]['mesure'].valeur > 0 else "OFF" }}</span>
                                 </p>
+                                <img 
+                                    id="img-{{ actuator.id }}" 
+                                    src="{{ url_for('static', path='images/housing_page/' + ('window_closed.svg' if actuator.id_type_capteur in [11, 12] else 'flow_meter_on.svg' if actuator.id_type_capteur == 13 else 'light_on.svg')) }}" 
+                                    alt="État de l'actionneur" 
+                                >
+                                <button 
+                                    id="toggle-btn-{{ actuator.id }}" 
+                                    class="toggle-btn" 
+                                    data-id="{{ actuator.id }}" 
+                                    data-type="{{ actuator.id_type_capteur }}" 
+                                    data-state="{{ '1' if mesures[actuator.id]['mesure'].valeur > 0 else '0' }}"
+                                >
+                                    Basculer
+                                </button>
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
-
             </div>
         </div>
    {% endfor %}
+
  </body>
  </html>
 
