@@ -1,22 +1,123 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href={{ url_for('static', path='styles/sheet_housing.css') }}>
-    <script src={{ url_for('static', path='scripts/script_housing.js') }} charset="utf-8" defer="defer"></script>
-    <title>Logements • I-Leaf</title>
-    <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
-</head>
-<body>
-    <h1>Dans quel logement résidez-vous ?</h1>
-    <label for="logement-select">Choisissez un type de logement :</label>
-    <select id="logement-select">
-        {% for logement in housing %}
-            <option value="{{ logement['id'] }}">{{ logement['id'] }}) {{ logement['nom'] }}</option>
-        {% endfor %}
-        <!-- <option value="">Chargement...</option> -->
-    </select>
+<!-- EI 4 - IoT
+ ANDRIATSILAVO Matteo -- TP A
+ Fichier de la page des logements -->
+ <!DOCTYPE html>
+ <html lang="fr">
+ <head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="{{ url_for('static', path='styles/sheet_housing.css') }}">
+   <script src="{{ url_for('static', path='scripts/script_housing.js') }}" charset="utf-8" defer="defer"></script>
+   <title>Logements • I-Leaf</title>
+   <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}">
+ </head>
+ <body>
+    <div class="header-container">
+        <img src="{{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }}" alt="Logo I-Leaf">
+        <h1 style="text-align: center;">État des capteurs</h1>
+   </div>
+   <h2 style="text-align: center;">Logement: "{{ nom_logement }}"</h2>
+   
+   {% for room in logement_pieces %}
+        <div class="room-block">
+            <button type="button" class="collapsible" style="text-align: center; border-left:10px solid">
+            {{ logement_pieces[room]['nom'] }}
+            </button>
+            <div class="content">
+                {% if logement_pieces[room]['has_sensor_type']['temperature']['has'] %}
+                    <h3 class="temperature">Température</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['temperature']['list'] %}
+                            <div class="sensor-block-temperature">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% if logement_pieces[room]['has_sensor_type']['humidity']['has'] %}
+                    <h3 class="humidity">Humidité</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['humidity']['list'] %}
+                            <div class="sensor-block-humidity">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                
+                {% if logement_pieces[room]['has_sensor_type']['light']['has'] %}
+                    <h3 class="light">Luminosité</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['light']['list'] %}
+                            <div class="sensor-block-light">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-</body>
-</html>
+                {% if logement_pieces[room]['has_sensor_type']['proximity']['has'] %}
+                    <h3 class="proximity">Présence/Proximité</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['proximity']['list'] %}
+                            <div class="sensor-block-proximity">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if logement_pieces[room]['has_sensor_type']['flow']['has'] %}
+                    <h3 class="flow">Débitmètre</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['flow']['list'] %}
+                            <div class="sensor-block-flow">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if logement_pieces[room]['has_sensor_type']['level']['has'] %}
+                    <h3 class="level">Niveau</h3>
+                    <div class="sensor-grid">
+                        {% for sensor in logement_pieces[room]['has_sensor_type']['level']['list'] %}
+                            <div class="sensor-block-level">
+                                <p>ID: {{ sensor.id }}</p>
+                                <p>Mesure: {{ mesures[sensor.id]['mesure'].valeur }} {{ mesures[sensor.id]['type_cap']['unite_mesure'] }} </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                 
+                {% if logement_pieces[room]['has_sensor_type']['actuator']['has'] %} 
+                <!-- Actionneurs -->
+                    <h3>Actionneurs</h3>
+                    <div class="actuator-grid">
+                        {% for actuator in logement_pieces[room]['has_sensor_type']['actuator']['list'] %}
+                            <div class="actuator-block">
+                                <p>ID: {{ actuator.id }}</p>
+                                <p>{{ "Actif (ON)" if (mesures[actuator.id]['mesure'].valeur > 0) else "INACTIF (OFF)" }} 
+                                    {% if mesures[actuator.id]['type_cap']['unite_mesure'] %}
+                                        {{ mesures[actuator.id]['type_cap']['unite_mesure'] }} 
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+   {% endfor %}
+ </body>
+ </html>
+

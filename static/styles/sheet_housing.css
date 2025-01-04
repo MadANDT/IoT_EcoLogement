@@ -1,14 +1,229 @@
+/* Arrière-plan */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+    background-color: #FFEBCB; /* Couleur similaire à celle utilisée dans la page d'accueil pour le bouton correspondant */
+    font-family: Arial, sans-serif; /* Police générale */
+    margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
 }
+
+/* Titres */
+h1, h2, h3 {
+    color: #2d56da;
+    font-family: 'Roboto', sans-serif; /* Une police différente pour les titres */
+    text-align: center;
+    margin: 20px 0;
+}
+
 h1 {
-    color: #333;
+    font-size: 2.5em; /* Taille importante pour le titre principal */
 }
-select {
+
+h2 {
+    font-size: 2em; /* Taille pour les sous-titres */
+}
+
+h3 {
+    font-size: 1.5em; /* Taille pour des sections spécifiques */
+    margin-top: 15px;
+}
+
+/* Conteneur de l'entête */
+.header-container {
+    display: flex; /* Utilise Flexbox */
+    align-items: center; /* Centre verticalement les éléments */
+    justify-content: center; /* Centre horizontalement les éléments si nécessaire */
+    gap: 20px; /* Ajoute un espacement entre l'image et le titre */
+    margin: 20px 0; /* Ajoute de l'espace autour du conteneur */
+}
+
+/* Logo */
+.logo {
+    max-width: 150px; /* Limite la largeur de l'image */
+    height: auto; /* Conserve le ratio width:height */
+}
+
+/* Style des boutons collapsibles */
+.collapsible {
+    background-color: #eee;
+    box-sizing: border-box; /* Inclure les bordures et le padding dans le calcul de la largeur */
+    border-radius: 10px; /* Angles arrondis */
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 40%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+/* Ajout d'une couleur de fond lors du survol ou de l'activation du bouton */
+.active, .collapsible:hover {
+    background-color: #ccc;
+}
+
+.room-block {
+    text-align: center;
+}
+
+.content {
+    padding: 0 18px;
+    background-color: white;
+    box-sizing: border-box;
+    border-radius: 5px; /* Angles arrondis */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    margin-bottom: 10px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Grilles des capteurs */
+.sensor-grid, .actuator-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Bloc de capteur individuel */
+.sensor-block, .actuator-block {
+    padding: 15px;
+    background-color: #f4f4f4;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+/* Titre des catégories de capteurs */
+.sensor-grid h3, .actuator-grid h3 {
+    font-size: 1.2em;
+    color: #2d56da;
+    text-align: center;
+}
+
+/* Capteurs spécifiques : Température */
+.temperature {
+    font-size: 1.5em;
+    color: #d32f2f; /* Rouge pour attirer l'attention sur la température */
+    font-weight: bold;
+}
+/*pour les blocs de type température*/
+.sensor-block-temperature{
+    background-color: #F9E5E5; 
+    border-left: 5px solid #D32F2F;
+}
+
+/* Capteurs d'humidité */
+.humidity {
+    font-size: 1.5em;
+    color: #0288d1; /* Bleu pour l'humidité */
+    font-weight: bold;
+}
+/*pour les blocs de type humidité*/
+.sensor-block-humidity{
+    background-color: #DFF4FF; 
+    border-left: 5px solid #0288D1;
+}
+
+/* Capteurs de luminosité */
+.light {
+    font-size: 1.5em;
+    color: #ff9800; /* Orange pour pour la luminosité */
+    font-weight: bold;
+}
+/*pour les blocs de type light*/
+.sensor-block-light{
+    background-color: #FFF2DF; 
+    border-left: 5px solid #ff9800;
+}
+
+/* Capteurs de proximité */
+.proximity {
+    font-size: 1.5em;
+    color: #4caf50; /*Vert les capteurs de proximité */
+    font-weight: bold;
+}
+/*pour les blocs de type proximity*/
+.sensor-block-proximity{
+    background-color: #E9F5E9; 
+    border-left: 5px solid #4CAF50;
+}
+
+/* Capteurs de débitmètre */
+.flow {
+    font-size: 1.5em;
+    color: #8e24aa; /* Violet pour le débitmètre */
+    font-weight: bold;
+}
+/*pour les blocs de type flow*/
+.sensor-block-flow{
+    background-color: #F5E5F9; 
+    border-left: 5px solid #8E24AA;
+}
+
+/* Capteurs de niveau */
+.level {
+    font-size: 1.5em;
+    color: #a759bd; /* Une teinte plus claire du débitmètre */
+    font-weight: bold;
+}
+/*pour les blocs de type level*/
+.sensor-block-level{
+    background-color: #F3E8F6; 
+    border-left: 5px solid #A759BD;
+}
+
+/* Bloc des actionneurs */
+.actuator-block {
+    background-color: #e1f5fe; /* Bleu clair pour les actionneurs */
+    border-left: 5px solid #2D56DA;
+}
+
+.actuator-block p {
+    font-size: 1.2em;
+}
+
+/* Masquage d'éléments */
+.hidden {
+    display: none;
+}
+
+/* Bordures et espacements pour la grille des capteurs */
+table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    text-align: center;
     padding: 10px;
-    font-size: 16px;
-    margin-top: 20px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #2874A6;
+    color: white;
+    font-weight: bold;
+}
+
+td {
+    white-space: nowrap;
+}
+
+/* Animations pour la visibilité des capteurs */
+.past-hour {
+    transition: all 0.3s ease;
+}
+
+/* Section spécifique aux capteurs actifs (exemple d'utilisation pour les actionneurs) */
+.actuator-block {
+    background-color: #e0f7fa;
+    font-weight: bold;
+    padding: 15px;
+    margin-bottom: 10px;
 }

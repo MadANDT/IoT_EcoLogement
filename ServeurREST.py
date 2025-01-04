@@ -34,7 +34,7 @@ def get_table_last_row(table: str):
     """ Récupérer la dernière ligne de la table `table`"""
     conn = connection_to_DB()
     c = conn.cursor()
-    last_line = c.execute(f"SELECT * FROM {table} ORDER BY id DESC LIMIT 1").fetchall()[0]
+    last_line = [dict(column) for column in c.execute(f"SELECT * FROM {table} ORDER BY id DESC LIMIT 1").fetchall()][0] 
     conn.close()
     return last_line
 
@@ -44,7 +44,8 @@ def rowNotFoundError(Exception):
 
 def get_row_table_with_id(table: str, id: int):
     """ Récupère la ligne de la `table` selon son `id` depuis la BdD.
-    Entrées: `table` (string, nom de la table à interroger), `id` (int, identifiant du logement dans la base)
+    Entrées:    `table` (string, nom de la table à interroger), 
+                `id` (int, identifiant du logement dans la base)
     Sorties: `row` (dictionnaire, ligne décrivant l'élément d'identifiant `id` dans la `table`)"""
     conn = connection_to_DB()
     c = conn.cursor()
@@ -56,13 +57,31 @@ def get_row_table_with_id(table: str, id: int):
         return row
     return None
 
-# def get_types_capteurs_last_row():
-#     """ Récupérer la dernière ligne de la table `types_capteurs`"""
-#     conn = connection_to_DB()
-#     c = conn.cursor()
-#     last_line = c.execute(f"SELECT * FROM types_capteurs ORDER BY id DESC LIMIT 1").fetchall()[0]
-#     conn.close()
-#     return last_line
+def get_rows_table_with_multiple(table: str, col: list[str] = [], cond: list[tuple[str, str]] = []):
+    """ Récupère les `col`onnes de(s) la(les) ligne(s) de la `table` répondant strictement (=) aux `cond`itions depuis la BdD. 
+    Entrées:    `table` (string, nom de la table à interroger),
+                `col` (list de string, les colonnes à sélectionner) 
+                `cond` (liste de tuples(str, any), critères à respecter, 
+                ex: table='logements', col=['id'], cond=[('id', 1), ('nom', 'Dupont)] → "SELECT id FROM logements WHERE id = 1 AND nom = Dupont")
+    Sorties: `rows` (liste de dictionnaires, lignes répondant aux critères `cond` dans la `table`)
+    """
+    conn = connection_to_DB()
+    c = conn.cursor()
+    conditions = ""
+    colonnes = ", ".join(col) if col != [] else "*"
+    if cond == []:
+        return [dict(column) for column in c.execute(f"SELECT {colonnes} FROM {table}")]
+    for s in range(len(cond)):
+        key, val = cond[s]
+        conditions += f"{key} = {val}"
+        conditions += f" AND " if (s < len(cond) - 1) else ""
+    rows = [dict(column) for column in c.execute(f"SELECT {colonnes} FROM {table} WHERE {conditions}")]
+    conn.commit()
+    conn.close()
+    if (not rows) or (rows != []):
+        return rows
+    return None
+
 
 # ## 4 -----------------------------------------
 # class Item(BaseModel):
@@ -133,7 +152,7 @@ class Capteur(BaseModel):
     id_piece: int = -1
     port_communication_serveur: int = 80
     date_insertion: Optional[DATE.datetime] = None
-
+    
     def __init__(self, identifiant: int, **kwargs) -> None:
         super().__init__(**kwargs)
         infos_capteur = get_row_table_with_id("capteurs", identifiant)
@@ -175,6 +194,7 @@ class Type_Capteur(BaseModel):
                 setattr(self, key, value)
         else:
             print(f"Aucun type de capteur trouvé avec l'identifiant {identifiant}")
+
 
 ## 1
 app = FastAPI()
@@ -245,13 +265,13 @@ def get_logements():
     conn.close()                                                    # se déconnecter
     return [dict(logement) for logement in logements]               # renvoi sous forme de dictionnaire  
 
-@app.get("/accueil/logements/")
-async def housing_page(request: Request):
-    """ Affiche la page des logements présents dans la base."""
-    housing = get_logements()
-    template_data = {"request": request, 
-                     "housing": housing}
-    return templates.TemplateResponse("housing.html", template_data)
+# @app.get("/accueil/logements/")
+# async def housing_page(request: Request):
+#     """ Affiche la page des logements présents dans la base."""
+#     housing = get_logements()
+#     template_data = {"request": request, 
+#                      "housing": housing}
+#     return templates.TemplateResponse("housing.html", template_data)
 
 
 @app.get("/logements/{id_logement}/consommation/")
@@ -268,32 +288,100 @@ async def conso_page(request: Request, id_logement:int):
                     #  "current_hour":            DATE.datetime.now().hour}
     return templates.TemplateResponse("building_consumption.html", template_data)
 
-@app.get("/logements/{id_logement}/meteo/")
-async def logement_meteo_page(request: Request, id_logement: int):
-    """ Affiche la page des prévisions météo du logement d'identifant `id_logement`."""
+
+# Page d'état des capteurs du logement
+@app.get("/logements/{id_logement}/etat_capteurs/")
+async def etat_capteurs_logement_page(request: Request, id_logement: int = -1):
+    """ Affiche la page d'état des capteurs du logement d'ID `id_logement`. """
     logement = Logement(id_logement)
-    # Mettre en place les variables à passer au template
-    data = meteo_API.retreive_weather_data(getattr(logement, "coordonnee_latitude"), getattr(logement, "coordonnee_longitude"))
-    data_dict = meteo_API.formatting_weather_api_data(data)
-    days_and_colors = [["Aujourd'hui (J + 0)",  "#2874A6"],
-                       ["Demain (J + 1)",       "#2E86C1"],
-                       ["Après-demain (J + 2)", "#2980B9"],
-                       ["Dans 3 jours (J + 3)", "#5499C7"],
-                       ["Dans 4 jours (J + 4)", "#7FB3D5"],
-                       ["Dans 5 jours (J + 5)", "#A9CCE3"],
-                       ["Dans 6 jours (J + 6)", "#E0F7FA"]]
-    temperatures_max_min = []
-    for r in range(7):  #parce qu'il y a sept jours 
-        temp = data_dict[r * 24 + 1: (r + 1) * 24 + 1]
-        temperatures_max_min.append([max(temp, key = itemgetter('temperature_2m'))['temperature_2m'], min(temp, key = itemgetter('temperature_2m'))['temperature_2m']])
-    # Passer les données et la requête au template
-    template_data = {"request":                 request, 
-                     "building_name":           getattr(logement, "nom"),
-                     "data":                    data_dict, 
-                     "days_and_colors":         days_and_colors, 
-                     "temperatures_max_min":    temperatures_max_min,
-                     "current_hour":            DATE.datetime.now().hour}
-    return templates.TemplateResponse("weather_forecast.html", template_data)
+    # Connexion à la BdD
+    conn = connection_to_DB()
+    c = conn.cursor()
+    # Liste des types de capteurs
+    liste_types_capteurs = get_rows_table_with_multiple("types_capteurs", ["id", "cap_ou_act", "type_mesure", "unite_mesure"])
+    # Dictionnaire de dictionnaires des types de capteurs, afin d'avoir une correspondance "rapide", type de capteur/ unité de mesure
+    dic_types_capteurs = {t_c['id']: {  "cap_ou_act": t_c['cap_ou_act'], 
+                                        "type_mesure": t_c['type_mesure'], 
+                                        "unite_mesure": t_c['unite_mesure']} 
+                        for t_c in liste_types_capteurs}
+
+    # Liste des IDs et des noms des pièces du logement
+    liste_pieces = get_rows_table_with_multiple("pieces", ['id', 'nom'], [("id_logement", str(getattr(logement, "id")))])
+    # transformée en dictionnaire de dictionnaires avec pour clé principale l'ID de la pièce
+    # et comme valeur un dictionnaire avec les clés "noms" et "sensor_type" (détermine si une pièce dispose d'un certain type de capteurs)
+    dic_pieces = {p['id']: {'nom': p['nom'].upper(), 'has_sensor_type': {
+        'temperature':  {'has': False, 'list': []},
+        'humidity':     {'has': False, 'list': []},
+        'light':        {'has': False, 'list': []},
+        'proximity':    {'has': False, 'list': []},
+        'flow':         {'has': False, 'list': []},
+        'level':        {'has': False, 'list': []},
+        'actuator':     {'has': False, 'list': []}}} for p in liste_pieces}
+    # Liste des IDs capteurs de ces pièces (donc du logement)
+    liste_id_capteurs = []
+    for piece in liste_pieces:
+        temp = get_rows_table_with_multiple("capteurs", ['id'], [('id_piece', str(piece['id']))])
+        temp = [cap['id'] for cap in temp]
+        liste_id_capteurs += temp
+    # Liste des capteurs (en tant qu'<objets>) du logement
+    liste_capteurs = [Capteur(id) for id in liste_id_capteurs]
+    # Liste des IDs des mesures effectuées par les capteurs du logement
+    liste_id_mesures = []
+    for id_capteur in liste_id_capteurs:
+        temp = get_rows_table_with_multiple("mesures", ['id'], [('id_capteur', id_capteur)])
+        liste_id_mesures += [mes['id'] for mes in temp]
+    # Dictionnaire des capteurs associés à leurs dernières mesures (la mesure décrite en tant qu'<objet>)
+    dic_capteurs_mesures = {id_cap: {} for id_cap in liste_id_capteurs}
+    for id_cap in dic_capteurs_mesures:
+        # on récupère l'ID de la mesure du capteur dont l'ID `id_cap`
+        id_mesure = get_rows_table_with_multiple("mesures", ["id"], [("id_capteur", id_cap)])[0]['id']
+        # on récupère l'ID du type de capteur du capteur dont l'ID `id_cap`
+        id_type_cap = get_rows_table_with_multiple("capteurs", ["id_type_capteur"], [("id", id_cap)])[0]['id_type_capteur']
+        type_cap = dic_types_capteurs[id_type_cap] 
+        dic_capteurs_mesures[id_cap]['mesure'] = Mesure(id_mesure)
+        dic_capteurs_mesures[id_cap]['type_cap'] = type_cap
+
+    conn.close()
+    
+    # Associations des types de capteurs existants à de variables
+    temperature, humidity, light, proximity, flow, level, actuator = [1, 2], [3, 4], [5, 6], [7, 8], [9], [10], [11, 12, 13]
+    # Itérons sur chaque capteur de notre liste
+    for cap in liste_capteurs:
+        # et mettons à jour chaque pièce selon le(s) type(s) de capteurs qu'elle possède
+        type_cap, id_piece = getattr(cap, "id_type_capteur"), getattr(cap, "id_piece")
+        # Si le capteur est d'un certain type
+        if type_cap in temperature:
+            # admettre que la pièce possède ce type de capteur
+            dic_pieces[id_piece]['has_sensor_type']['temperature']['has'] = True
+            # ajouter ce capteur à la liste des capteurs de ce type de cette pièce
+            dic_pieces[id_piece]['has_sensor_type']['temperature']['list'].append(cap)
+        if type_cap in humidity:
+            dic_pieces[id_piece]['has_sensor_type']['humidity']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['humidity']['list'].append(cap)
+        if type_cap in light:
+            dic_pieces[id_piece]['has_sensor_type']['light']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['light']['list'].append(cap)
+        if type_cap in proximity:
+            dic_pieces[id_piece]['has_sensor_type']['proximity']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['proximity']['list'].append(cap)
+        if type_cap in flow:
+            dic_pieces[id_piece]['has_sensor_type']['flow']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['flow']['list'].append(cap)
+        if type_cap in level:
+            dic_pieces[id_piece]['has_sensor_type']['level']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['level']['list'].append(cap)
+        if type_cap in actuator:
+            dic_pieces[id_piece]['has_sensor_type']['actuator']['has'] = True
+            dic_pieces[id_piece]['has_sensor_type']['actuator']['list'].append(cap)
+    # Maintenant qu'on a toutes les données formattées pour le template, passons les à Jinja2
+    template_data = {"request":         request,  
+                     "id_logement":     id_logement,
+                     "nom_logement":   getattr(logement, "nom"),
+                     "logement_pieces": dic_pieces,
+                     "mesures":         dic_capteurs_mesures} 
+    return templates.TemplateResponse("housing.html", template_data)
+
+
 
 @app.post("/logements/")
 async def add_logement(logement: Logement):
@@ -401,10 +489,12 @@ async def get_mesures():
     conn.close()
     return [dict(mesure) for mesure in mesures]
 
-@app.get("/meteo/", response_class=HTMLResponse)
-async def afficher_tableau(request: Request): #, current_hour_mode: bool = True):
+@app.get("/meteo/{id_logement}/", response_class=HTMLResponse)
+async def logement_meteo_page(request: Request, id_logement: int):
+    """ Affiche la page des prévisions météo du logement d'identifant `id_logement`."""
+    logement = Logement(id_logement)
     # Mettre en place les variables à passer au template
-    data = meteo_API.retreive_weather_data()
+    data = meteo_API.retreive_weather_data(getattr(logement, "coordonnee_latitude"), getattr(logement, "coordonnee_longitude"))
     data_dict = meteo_API.formatting_weather_api_data(data)
     days_and_colors = [["Aujourd'hui (J + 0)",  "#2874A6"],
                        ["Demain (J + 1)",       "#2E86C1"],
@@ -419,6 +509,7 @@ async def afficher_tableau(request: Request): #, current_hour_mode: bool = True)
         temperatures_max_min.append([max(temp, key = itemgetter('temperature_2m'))['temperature_2m'], min(temp, key = itemgetter('temperature_2m'))['temperature_2m']])
     # Passer les données et la requête au template
     template_data = {"request":                 request, 
+                     "building_name":           getattr(logement, "nom"),
                      "data":                    data_dict, 
                      "days_and_colors":         days_and_colors, 
                      "temperatures_max_min":    temperatures_max_min,
@@ -459,16 +550,17 @@ async def add_type_capteur(type_capteur: Type_Capteur):
     conn.close()
     return {"id": type_capteur_id, "message": "Ajout de la pièce effectué."}
 
-# Page d'accueil
-@app.get("/accueil1/")
-async def homepage(request: Request):
-    # Passer les données et la requête au template
-    template_data = {"request": request}
-    return templates.TemplateResponse("homepage.html", template_data)
+# # Page d'accueil -- TO DELETE
+# @app.get("/accueil1/")
+# async def homepage(request: Request):
+#     # Passer les données et la requête au template
+#     template_data = {"request": request}
+#     return templates.TemplateResponse("homepage.html", template_data)
 
 # Page d'accueil
 @app.get("/accueil/")
 async def homepage2(request: Request):
+    """ Page d'accueil du site. """
     # Passer les données et la requête au template
     housing = get_logements()
     template_data = {"request": request, 
