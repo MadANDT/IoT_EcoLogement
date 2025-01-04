@@ -4,6 +4,7 @@ body {
     font-family: Arial, sans-serif; /* Police générale */
     margin: 0;
     padding: 0;
+    
 }
 
 /* Titres */
@@ -24,6 +25,19 @@ h2 {
 
 h3 {
     font-size: 1.5em; /* Taille pour des sections spécifiques */
+}
+
+.header-container {
+    display: flex; /* Utilise Flexbox */
+    align-items: center; /* Centre verticalement les éléments */
+    justify-content: center; /* Centre horizontalement les éléments si nécessaire */
+    gap: 20px; /* Ajoute un espacement entre l'image et le titre */
+    margin: 20px 0; /* Ajoute de l'espace autour du conteneur */
+}
+
+.logo {
+    max-width: 150px; /* Limite la largeur de l'image */
+    height: auto; /* Conserve le ratio width:height */
 }
 
 /* Paragraphes */
@@ -70,19 +84,14 @@ p {
 
 .forecast-block {
     width: 100%;
-    /* background-color: #ffffff; /* Fond blanc pour contraster avec l'arrière-plan  */
-    /* border: 2px solid #004d40; /* Bordure verte foncée  */
     border-radius: 20px; /* Angles arrondis*/ 
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile pour un effet de profondeur  */
-    /* display: flex; */
-    /* display: flex; */
-    /* flex-wrap: wrap; /* Permet le retour à la ligne si les divs dépassent  */
-    /* gap: 10px; /* Espacement entre les divs  */
-    /* justify-content: space-around; /* Centrer ou répartir les divs  */
-    /* padding: 20px; */
-    /* margin: 20px auto; */
-    /* max-width: 200px; /* Largeur maximale  */
-    /* text-align: center; Centrer le contenu */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center;    /* Centre verticalement */
+    height: 100%;           /* Prend toute la hauteur du conteneur parent */
+    width: 100%;            /* Prend toute la largeur du conteneur parent */
+    flex-direction: column; /* Aligne les éléments en colonne */
+    text-align: center; /* Centrer le contenu */
 }
 
 table {

@@ -1,6 +1,6 @@
 <!-- EI 4 - IoT
  ANDRIATSILAVO Matteo -- TP A
- Fichier des prévisions météorologiques  -->
+ Fichier de la page de prévisions météorologiques  -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,12 +13,14 @@
   <link rel = "icon" type = "image/x-icon" href ={{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}>
 </head>
 <body>
-    <img src={{ url_for('static', path="images/logo_i_leaf_with_name_cropped.png") }}>
-    <h1 id = "flash" >Prévisions météo pour les 7 prochains jours</h1>
-    <h2> Logement: "{{ building_name }}"</h2>
+    <div class="header-container">
+        <img src={{ url_for('static', path="images/logo_i_leaf_with_name_cropped.png") }}>
+        <h1 style="text-align: center;" >Prévisions météo pour les 7 prochains jours</h1>
+    </div>
+    <h2 style="text-align: center;"> Logement: "{{ building_name }}"</h2>
     {% for d in range(days_and_colors | length) %}
-    <forecast-block class="forecast-block">
-        <button type="button" class="collapsible" style="border-left:10px solid {{ days_and_colors[d][1] }}">
+    <forecast-block class="forecast-block" >
+        <button type="button" class="collapsible" style="text-align: center; border-left:10px solid {{ days_and_colors[d][1] }}">
             <span style="font-size: 2em"><b><em>{{ days_and_colors[d][0] }}</em></b></span>
             <span class="temperature" style="margin-left: 16px; border-left:5px solid grey">&nbsp Températures: {{ temperatures_max_min[d][0] }} °C / {{ temperatures_max_min[d][1] }} 
                 {% if d == 0 %}
