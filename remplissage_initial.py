@@ -183,7 +183,9 @@ def init_mesures(c: sqlite3.Connection.cursor, nb_mesures: int):
     Sorties: Aucune (remplissage en place)"""
 
     # On vide la table si elle existe, ce qui fait qu'à chaque appel, on aura des valeurs actualisées
-    # drop_table(c, "mesures")
+    drop_table(c, "mesures")
+    # et on la recrée ensuite
+    create_table_mesures(c)
     # On génère ensuite un dictionnaire de dictionnaires, chaque clé est l'ID d'un logement et les valeurs sont
     # les coordonnées en latitude et en longitude (pour requêter l'API météo) et les listes des IDs des pièces et capteurs attachés
     dic_logements = {logement['id']: {  'lat':      logement['coordonnee_latitude'], 
