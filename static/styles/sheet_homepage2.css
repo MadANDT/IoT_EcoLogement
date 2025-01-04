@@ -9,41 +9,31 @@ body, html {
     align-items: center;
 }
 
-/* Conteneur principal pour la séparation */
-.split-screen {
-    display: flex;
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    /* background-color: #a0ff00; */
-}
-
 /* Zone de texte */
 .text-area {
-    flex: 1;
-    /* background-color: yellowgreen; */
-    color: white;
+    font-family: monospace, Arial, sans-serif; /* Police générale */
+    color: black;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: end;
     align-items: center;
+    white-space: normal; /* Permet les retours à la ligne automatiques */
     position: relative;
     right: 50%;
     padding: 20px;
     text-align: center;
-    z-index: 3;
+    width: fit-content;
+    max-width: 1000px;
+    height: fit-content;
 }
 
-/* Séparateur oblique */
-.separator {
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background-color: #A4B97F; /* Bleu */
-    transform: rotate(-30deg);
-    transform-origin: center;
-    z-index: 1;
-    right: -30%;
+/* Logo I-Leaf */
+.text-area img{
+    max-width: 1024px;
+    width: 300%;    /* Autorise une largeur maximale égale à 300% de celle d'origine'*/
+    height: auto;       /* Conserve un ratio width:height*/
+    display: block;     /* Évite les espaces blancs ajoutés par les images inline*/
+
 }
 
 /* Conteneur des cercles */
@@ -52,16 +42,14 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-    z-index: 2;
 }
 
 /* Cercles */
 .circle {
     position: absolute;
-    width: 300px;
-    height: 300px;
-    background-color: #3498db;
+    width: 350px;
+    height: 350px;
+    background-color: #A3B87D;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -70,16 +58,16 @@ body, html {
     transition: all 0.3s ease;
 }
 
-.circle#home {
-    transform: translate(0%, -75%);
+.circle#housing {
+    transform: translate(0%, -125%);
 }
 
 .circle#documents {
-    transform: translate(100%, 75%);
+    transform: translate(0%, 0%);
 }
 
 .circle#weather {
-    transform: translate(200%, 250%);
+    transform: translate(0%, 125%);
 }
 
 /* Icônes des cercles */
@@ -89,13 +77,10 @@ body, html {
 
 /* Texte caché par défaut */
 .text {
-    font-size: 20px;
+    font-size: 32px;
+    font-family: monospace, Arial, sans-serif; /* Police générale */
+    z-index: 2;
     display: none;
-}
-
-/* Survol des cercles */
-.circle:hover {
-    background-color: #e74c3c;
 }
 
 /* Apparition du texte */
@@ -107,17 +92,17 @@ body, html {
 #dropdown-menu {
     margin-top: 20px;
     padding: 10px;
-    font-size: 16px;
+    font-size: 24px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    width: 200px;
+    width: fit-content;
 }
 
 /* Style pour le bouton d’envoi */
 #submit-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
+    margin-top: 10px;
+    padding: 10px 10px;
+    font-size: 20px;
     border-radius: 5px;
     background-color: #3498db;
     color: white;

@@ -27,15 +27,15 @@
     <div class="circle-container">
         <div class="circle" id="housing">
             <span class="icon">🏠</span>
-            <div class="text">Logements</div>
+            <div class="text">Logements <span style="font-size: 24px;">et capteurs</span></div>
         </div>
         <div class="circle" id="weather">
             <span class="icon">⛅</span>
-            <div class="text">Météo</div>
+            <div class="text">Météo <span style="font-size: 24px;">et prévisions</span></div>
         </div>
         <div class="circle" id="bill">
             <span class="icon">📄</span>
-            <div class="text">Factures</div>
+            <div class="text">Factures <span style="font-size: 24px;">et consommation</span></div>
         </div>
     </div>
     
@@ -176,7 +176,7 @@
                     window.location.href = `/factures/${dropdownMenu.value}/`;
                 }
                 if (clickedCircleCategory === 'housing'){
-                    window.location.href = `/logement/${dropdownMenu.value}/`;
+                    window.location.href = `/logements/${dropdownMenu.value}/etat_capteurs/`;
                 }      
             }
         });
