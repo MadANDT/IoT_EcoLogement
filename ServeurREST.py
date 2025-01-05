@@ -18,7 +18,8 @@ from fastapi.templating import Jinja2Templates
 from templates import draw_3D_charts
 ## -------------------------------------------
 import sqlite3
-import datetime as DATE
+import datetime as DATE, random as R
+from http.client import HTTPException   # rajoutée pour la mise à jour de la BdD
 import meteo_API
 from operator import itemgetter
 from typing import Optional
@@ -58,7 +59,7 @@ def get_row_table_with_id(table: str, id: int):
     return None
 
 def get_rows_table_with_multiple(table: str, col: list[str] = [], cond: list[tuple[str, str]] = []):
-    """ Récupère les `col`onnes de(s) la(les) ligne(s) de la `table` répondant strictement (=) aux `cond`itions depuis la BdD. 
+    """ Récupère les `col`onnes des lignes de la `table` répondant strictement (=) aux `cond`itions depuis la BdD. 
     Entrées:    `table` (string, nom de la table à interroger),
                 `col` (list de string, les colonnes à sélectionner) 
                 `cond` (liste de tuples(str, any), critères à respecter, 
@@ -78,9 +79,9 @@ def get_rows_table_with_multiple(table: str, col: list[str] = [], cond: list[tup
     rows = [dict(column) for column in c.execute(f"SELECT {colonnes} FROM {table} WHERE {conditions}")]
     conn.commit()
     conn.close()
-    if (not rows) or (rows != []):
+    if (rows) or (rows != []):
         return rows
-    return None
+    return []
 
 
 # ## 4 -----------------------------------------
@@ -146,6 +147,15 @@ class Facture(BaseModel):
         else:
             print(f"Aucune facture trouvée avec l'identifiant {identifiant}")
 
+    def to_dict(self):
+        return {
+            "id": getattr(self, "id"),
+            "id_logement": getattr(self, "id_logement"),
+            "nom": getattr(self, "nom"),
+            "montant": getattr(self, "montant"),
+            "valeur_consommee": getattr(self, "valeur_consommee"),
+        }
+
 class Capteur(BaseModel):
     id: Optional[int] = None
     id_type_capteur: Optional[int] = None
@@ -170,12 +180,18 @@ class Mesure(BaseModel):
 
     def __init__(self, identifiant: int, **kwargs) -> None:
         super().__init__(**kwargs)
-        infos_mesure = get_row_table_with_id("mesures", identifiant)
-        if infos_mesure:
-            for key, value in infos_mesure.items():
-                setattr(self, key, value)
+        if identifiant == -1:
+            setattr(self, "id", -1)
+            setattr(self, "valeur", 0)
+            setattr(self, "id_capteur", None)
+            setattr(self, "date_insertion", None)
         else:
-            print(f"Aucune mesure trouvée avec l'identifiant {identifiant}")
+            infos_mesure = get_row_table_with_id("mesures", identifiant)
+            if infos_mesure:
+                for key, value in infos_mesure.items():
+                    setattr(self, key, value)
+            else:
+                print(f"Aucune mesure trouvée avec l'identifiant {identifiant}")
 
 class Type_Capteur(BaseModel):
     id: Optional[int] = None
@@ -195,7 +211,13 @@ class Type_Capteur(BaseModel):
         else:
             print(f"Aucun type de capteur trouvé avec l'identifiant {identifiant}")
 
+class Actionneur_Change_Etat(BaseModel):
+    actionneur_id: int
+    nouvel_etat: int
 
+class Capteur_A_Ajouter(BaseModel):
+    id_piece: int
+    id_type_capteur: int
 ## 1
 app = FastAPI()
 @app.get("/")
@@ -275,18 +297,33 @@ def get_logements():
 
 
 @app.get("/logements/{id_logement}/consommation/")
-async def conso_page(request: Request, id_logement:int):
-    # Récupérons les factures de la base
-    conn = connection_to_DB()
-    factures = conn.execute(f"SELECT * FROM factures WHERE id_logement={id_logement}").fetchall()    # requêter sur `factures` du logement d'id spécifié
-    conn.close()
-    factures_tronquees = [{"nom": f["nom"], "valeur_consommee": f["valeur_consommee"]} for f in factures]
-    template_data = {"request":             request, 
-                     "factures_tronquees":  factures_tronquees, 
-                     "id_logement":         id_logement} 
-                    #  "temperatures_max_min":    temperatures_max_min,
-                    #  "current_hour":            DATE.datetime.now().hour}
-    return templates.TemplateResponse("building_consumption.html", template_data)
+async def conso_page(request: Request, id_logement: int):
+    logement = Logement(id_logement)
+    # Récupérons les factures de la base liées au logement d'ID `id_logement`
+    factures = get_rows_table_with_multiple('factures', ['id', 'nom'], [('id_logement', str(id_logement))])
+    defaut = {'eau': None, 'chauffage': None, 'electricite': None}
+    factures_quoti, factures_hebdo, factures_mensu = defaut.copy(), defaut.copy(), defaut.copy()
+    # Répartissons les factures (en tant qu'<obejts>) selon la durée qu'elles concernent
+    for f in factures:
+        for time_scale in ['quotidien', 'hebdomadaire', 'mensuel']:
+            for category in ['eau', 'chauffage', 'electricite']:
+                if time_scale in f['nom'] and category in f['nom']:
+                    match time_scale:
+                        case 'quotidien':
+                            factures_quoti[category] = Facture(f['id']).to_dict()
+                        case 'hebdomadaire':
+                            factures_hebdo[category] = Facture(f['id']).to_dict()
+                        case 'mensuel':
+                            factures_mensu[category] = Facture(f['id']).to_dict()
+                        case _:
+                            pass
+    factures = {'quotidien': factures_quoti, 'hebdomadaire': factures_hebdo, 'mensuel': factures_mensu}
+    #factures_tronquees = [{"nom": f["nom"], "valeur_consommee": f["valeur_consommee"]} for f in factures]
+    template_data = {"request":             request,
+                     "id_logement":         id_logement,
+                     "nom_logement":        getattr(logement, "nom"),
+                     "factures":            factures} 
+    return templates.TemplateResponse("bill.html", template_data)
 
 
 # Page d'état des capteurs du logement
@@ -309,14 +346,16 @@ async def etat_capteurs_logement_page(request: Request, id_logement: int = -1):
     liste_pieces = get_rows_table_with_multiple("pieces", ['id', 'nom'], [("id_logement", str(getattr(logement, "id")))])
     # transformée en dictionnaire de dictionnaires avec pour clé principale l'ID de la pièce
     # et comme valeur un dictionnaire avec les clés "noms" et "sensor_type" (détermine si une pièce dispose d'un certain type de capteurs)
-    dic_pieces = {p['id']: {'nom': p['nom'].upper(), 'has_sensor_type': {
-        'temperature':  {'has': False, 'list': []},
-        'humidity':     {'has': False, 'list': []},
-        'light':        {'has': False, 'list': []},
-        'proximity':    {'has': False, 'list': []},
-        'flow':         {'has': False, 'list': []},
-        'level':        {'has': False, 'list': []},
-        'actuator':     {'has': False, 'list': []}}} for p in liste_pieces}
+    dic_pieces = {p['id']: {'name': p['nom'].upper(), 
+                            'number_sensors': 0,
+                            'has_sensor_type': {
+                                'temperature':  {'has': False, 'list': []},
+                                'humidity':     {'has': False, 'list': []},
+                                'light':        {'has': False, 'list': []},
+                                'proximity':    {'has': False, 'list': []},
+                                'flow':         {'has': False, 'list': []},
+                                'level':        {'has': False, 'list': []},
+                                'actuator':     {'has': False, 'list': []}}} for p in liste_pieces}
     # Liste des IDs capteurs de ces pièces (donc du logement)
     liste_id_capteurs = []
     for piece in liste_pieces:
@@ -333,18 +372,23 @@ async def etat_capteurs_logement_page(request: Request, id_logement: int = -1):
     # Dictionnaire des capteurs associés à leurs dernières mesures (la mesure décrite en tant qu'<objet>)
     dic_capteurs_mesures = {id_cap: {} for id_cap in liste_id_capteurs}
     for id_cap in dic_capteurs_mesures:
+        id_mesure, id_type_cap, type_cap = None, None, None
         # on récupère l'ID de la mesure du capteur dont l'ID `id_cap`
-        id_mesure = get_rows_table_with_multiple("mesures", ["id"], [("id_capteur", id_cap)])[0]['id']
+        requete_mesure = get_rows_table_with_multiple("mesures", ["id"], [("id_capteur", id_cap)])
+        if requete_mesure != []:
+            id_mesure = requete_mesure[0]['id']
         # on récupère l'ID du type de capteur du capteur dont l'ID `id_cap`
-        id_type_cap = get_rows_table_with_multiple("capteurs", ["id_type_capteur"], [("id", id_cap)])[0]['id_type_capteur']
-        type_cap = dic_types_capteurs[id_type_cap] 
-        dic_capteurs_mesures[id_cap]['mesure'] = Mesure(id_mesure)
-        dic_capteurs_mesures[id_cap]['type_cap'] = type_cap
+        requete_type = get_rows_table_with_multiple("capteurs", ["id_type_capteur"], [("id", id_cap)]) 
+        if requete_type != []:
+            id_type_cap = requete_type[0]['id_type_capteur']
+            type_cap = dic_types_capteurs[id_type_cap] 
+        dic_capteurs_mesures[id_cap]['mesure'] = Mesure(id_mesure) if id_mesure else Mesure(-1)
+        dic_capteurs_mesures[id_cap]['type_cap'] = type_cap if type_cap else None
 
     conn.close()
     
     # Associations des types de capteurs existants à de variables
-    temperature, humidity, light, proximity, flow, level, actuator = [1, 2], [3, 4], [5, 6], [7, 8], [9], [10], [11, 12, 13]
+    temperature, humidity, light, proximity, flow, level, actuator = [1, 2], [3, 4], [5, 6], [7, 8], [9], [10], [11, 12, 13, 14]
     # Itérons sur chaque capteur de notre liste
     for cap in liste_capteurs:
         # et mettons à jour chaque pièce selon le(s) type(s) de capteurs qu'elle possède
@@ -355,33 +399,66 @@ async def etat_capteurs_logement_page(request: Request, id_logement: int = -1):
             dic_pieces[id_piece]['has_sensor_type']['temperature']['has'] = True
             # ajouter ce capteur à la liste des capteurs de ce type de cette pièce
             dic_pieces[id_piece]['has_sensor_type']['temperature']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in humidity:
             dic_pieces[id_piece]['has_sensor_type']['humidity']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['humidity']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in light:
             dic_pieces[id_piece]['has_sensor_type']['light']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['light']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in proximity:
             dic_pieces[id_piece]['has_sensor_type']['proximity']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['proximity']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in flow:
             dic_pieces[id_piece]['has_sensor_type']['flow']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['flow']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in level:
             dic_pieces[id_piece]['has_sensor_type']['level']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['level']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
         if type_cap in actuator:
             dic_pieces[id_piece]['has_sensor_type']['actuator']['has'] = True
             dic_pieces[id_piece]['has_sensor_type']['actuator']['list'].append(cap)
+            dic_pieces[id_piece]['number_sensors'] += 1
     # Maintenant qu'on a toutes les données formattées pour le template, passons les à Jinja2
     template_data = {"request":         request,  
                      "id_logement":     id_logement,
-                     "nom_logement":   getattr(logement, "nom"),
+                     "nom_logement":    getattr(logement, "nom"),
                      "logement_pieces": dic_pieces,
-                     "mesures":         dic_capteurs_mesures} 
+                     "mesures":         dic_capteurs_mesures,
+                     "nb_pieces":       len([key for key in dic_pieces])} 
     return templates.TemplateResponse("housing.html", template_data)
 
-
+@app.post("/logements/changement_etat_actionneur/")
+async def update_actuator_state(request: Actionneur_Change_Etat):
+    """ Met à jour l'état d'un actionneur dans la base de données.
+    Entrées: `request` (objet Actionneur_Change_Etat contenant l'ID de l'actionneur et son état)
+    Sorties: une réponse serveur-client si tout se passe bien
+    """
+    actuator_id = request.actionneur_id 
+    new_state = request.nouvel_etat
+    try:
+        conn = connection_to_DB()  # Connexion
+        c = conn.cursor()
+        # Utilisation de paramètres pour éviter les injections SQL
+        query = "UPDATE mesures SET valeur = ? WHERE id_capteur = ?"
+        c.execute(query, (new_state, actuator_id))
+        conn.commit()  # Exporter les changements
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour de l'état de l'actionneur : {e}")
+        raise e  # Propagation de l'erreur
+    finally:
+        if conn:
+            conn.close()  # Fermeture de la connexion
+    # Simule une mise à jour réussie
+    if new_state in [0, 1]:
+        return {"message": "État mis à jour!", "id": actuator_id, "new_state": new_state}
+    else:
+        raise HTTPException(status_code=400, detail="État invalide!")
 
 @app.post("/logements/")
 async def add_logement(logement: Logement):
@@ -468,18 +545,23 @@ async def get_capteurs():
     conn.close()
     return [dict(capteur) for capteur in capteurs]
 
-@app.post("/capteurs/")
-async def add_capteur(capteur: Capteur):
-    conn = connection_to_DB()
-    c = conn.cursor()
-    c.execute(
-        """INSERT INTO capteurs(id_type_capteur, reference_commerciale, id_piece, port_communication_serveur) VALUES (?, ?, ?, ?)""",
-        (capteur.id_type_capteur, capteur.reference_commerciale, capteur.id_piece, capteur.port_communication_serveur)
-    )
-    conn.commit()
-    capteur_id = c.lastrowid
-    conn.close()
-    return {"id": capteur_id, "message": "Ajout du capteur effectué."}
+@app.post("/ajouter_capteurs/")
+async def add_capteur(request: Capteur_A_Ajouter):
+    """ Met à jour la base de données en intégrant un nouveau capteur à une pièce. """
+    id_piece, id_type_capteur = request.id_piece, request.id_type_capteur
+    try:
+        conn = connection_to_DB()
+        c = conn.cursor()
+        c.execute(
+            """INSERT INTO capteurs(id_type_capteur, id_piece, port_communication_serveur) VALUES (?, ?, ?)""",
+            (id_type_capteur, id_piece, R.randint(80, 255))
+        )
+        capteur_id = c.lastrowid
+        conn.commit()
+        conn.close()
+        return {"id": capteur_id, "message": "Ajout du capteur effectué."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur serveur : {str(e)}")
 
 # Mesures
 @app.get("/mesures/")
@@ -549,13 +631,6 @@ async def add_type_capteur(type_capteur: Type_Capteur):
     type_capteur_id = c.lastrowid
     conn.close()
     return {"id": type_capteur_id, "message": "Ajout de la pièce effectué."}
-
-# # Page d'accueil -- TO DELETE
-# @app.get("/accueil1/")
-# async def homepage(request: Request):
-#     # Passer les données et la requête au template
-#     template_data = {"request": request}
-#     return templates.TemplateResponse("homepage.html", template_data)
 
 # Page d'accueil
 @app.get("/accueil/")

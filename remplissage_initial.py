@@ -361,8 +361,8 @@ def init_factures(c: sqlite3.Connection.cursor):
     for id_logement in dic_logements:
         dic_logements[id_logement]['type_capteurs'] = {'chauffage': 0, 'eau': 0, 'electricite': 0}        #initialisation
         defaut = {'chauffage': 0.0, 'eau': 0.0, 'electricite': 0.0}   #dictionnaire par défaut            #||
-        dic_logements[id_logement]['consommation'] = {'jour': defaut, 'semaine': defaut, 'mois': defaut}  #||
-        dic_logements[id_logement]['facturation'] = {'jour': defaut, 'semaine': defaut, 'mois': defaut}   #||
+        dic_logements[id_logement]['consommation'] = {'jour': defaut.copy(), 'semaine': defaut.copy(), 'mois': defaut.copy()}  #||
+        dic_logements[id_logement]['facturation'] = {'jour': defaut.copy(), 'semaine': defaut.copy(), 'mois': defaut.copy()}   #||
         type_capteurs = dic_logements[id_logement]['type_capteurs']
         consommation = dic_logements[id_logement]['consommation']
         facturation = dic_logements[id_logement]['facturation']
