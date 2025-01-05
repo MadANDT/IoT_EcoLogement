@@ -173,12 +173,18 @@
                     window.location.href = `/meteo/${dropdownMenu.value}/`;
                 }
                 if (clickedCircleCategory === 'bill'){
-                    window.location.href = `/factures/${dropdownMenu.value}/`;
+                    window.location.href = `/logements/${dropdownMenu.value}/consommation/`;
                 }
                 if (clickedCircleCategory === 'housing'){
                     window.location.href = `/logements/${dropdownMenu.value}/etat_capteurs/`;
                 }      
             }
+        });
+
+        // Retour vers la page d'accueil
+        const logo = document.getElementById("logo");
+        logo.addEventListener('click', () => {
+            window.location.href = `/accueil/`;
         });
     </script>
     

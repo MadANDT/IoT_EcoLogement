@@ -14,15 +14,15 @@
  </head>
  <body>
     <div class="header-container">
-        <img src="{{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }}" alt="Logo I-Leaf">
+        <img id="logo" src="{{ url_for('static', path='images/logo_i_leaf_with_name_cropped.png') }}" alt="Logo I-Leaf">
         <h1 style="text-align: center;">État des capteurs</h1>
    </div>
-   <h2 style="text-align: center;">Logement: "{{ nom_logement }}"</h2>
+   <h2 style="text-align: center;">Logement: "{{ nom_logement }}" &nbsp;| pièces: {{ nb_pieces }}</h2>
    
    {% for room in logement_pieces %}
         <div class="room-block">
             <button type="button" class="collapsible" style="text-align: center; border-left:10px solid">
-            {{ logement_pieces[room]['nom'] }}
+            {{ logement_pieces[room]['name'] }} &nbsp;| capteurs/actionneurs: {{ logement_pieces[room]['number_sensors'] }}
             </button>
             <div class="content">
                 {% if logement_pieces[room]['has_sensor_type']['temperature']['has'] %}
@@ -131,7 +131,27 @@
             </div>
         </div>
    {% endfor %}
+   <br><br>
+   <div class="add-sensors" style="text-align: left;">
+        <button type="button" class="collapsible" style="text-align: center; border-right:10px solid; width:fit-content;">
+            Ajouter un module dans une pièce ? </button>
+        <div class="content-sensors" style="text-align: left; width: 1024px;">
+            <!-- Menu déroulant pour choisir la salle -->
+            <select id="menu-rooms" onchange="fetchSensorTypes(this.value)">
+                <option value="">• Choisir la salle</option>
+                {% for r in logement_pieces %}
+                    <option value="{{ r }}">{{ logement_pieces[r]['name'] }}</option>
+                {% endfor %}
+            </select>
+            <!-- Menu déroulant pour les types de capteurs/actionneurs -->
+            <select id="menu-sensor-types" disabled>
+                <!-- <option value="">• Choisir un type de capteur/actionneur</option> -->
+            </select>
+            <!-- Bouton d'envoi -->
+            <button id="add-sensor-btn" onclick="addSensor()" disabled>Ajouter</button>
+        </div>
+    </div>
 
- </body>
+</body>
  </html>
 

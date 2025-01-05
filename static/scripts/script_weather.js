@@ -31,3 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   });
 });
+
+// Retour vers la page d'accueil
+const logo = document.getElementById("logo");
+logo.addEventListener('click', () => {
+    window.location.href = `/accueil/`;
+});
