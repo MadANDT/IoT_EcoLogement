@@ -25,11 +25,16 @@ Le serveur peut maintenant être lancé:
 ```python
 >>> fastapi dev .\ServeurREST.py
 ```
-- La page d'accueil est disponible à l'adresse IP `127.0.0.1:8000`.
-Trois premières options sont disponibles, une seule est pour l'instant fonctionnelle: _Logements_.
-- En cliquant dessus, un choix vous proposera un des logements (tous fictifs bien sûr) dans l'une des écoles du réseau POLYTECH.
-- Votre choix fait, vous serez redirigé vers une page qui présente les prévisions météo pour les 7 prochains jours du logement en question.
-Les données proviennent d'une API open source: [Open Meteo](https://open-meteo.com/).
+- La page d'accueil est disponible à l'adresse `127.0.0.1:8000/acccueil`.
+Trois premières options sont disponibles, toutes fonctionnelle: _Logements et capteurs_, _Météo et prévision_, _Factures et documents_.
+- En cliquant sur une des options, un choix vous proposera des logements (tous fictifs bien sûr) dans l'une des écoles du réseau POLYTECH.
+- Votre choix fait, vous serez redirigé vers une page qui présente selon la fonctionnalité:
+    - l'état et les mesures des différents capteurs des pièces du logement sélectionné (certains étant activables alors leur valeur dans la base est alors modifiable);
+    - les prévisions météo pour les 7 prochains jours du logement en question;
+    - les consommations et facturations du batiment sur trois échelles de temps: quotidienne, hebdomadaire et mensuelle.
+    
+Les données météorologiques proviennent d'une API open source: [Open Meteo](https://open-meteo.com/).
+Tandis que certaines valeurs comme la consommation et la tarification sont générées en dures à partir de valeurs moyennes sur la société française. 
 
 ## Sources
 **Open Meteo**, **Stack Overflow**, **ChatGPT**, **W3Schools**.
