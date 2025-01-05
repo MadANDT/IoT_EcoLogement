@@ -1,0 +1,80 @@
+/* Arrière-plan */
+body {
+    background-color: #CAD0D4; /* Couleur similaire à celle utilisée dans la page d'accueil pour le bouton correspondant */
+    font-family: Arial, sans-serif; /* Police générale */
+    margin: 0;
+    padding: 0;
+}
+
+/* En-tête */
+.header-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f3f4f6;
+}
+
+.header-container img {
+    height: 50px;
+    margin-right: 20px;
+}
+
+h1 {
+    font-size: 2.5em; /* Titre principal plus grand */
+    margin: 0;
+    padding: 10px;
+}
+
+h2 {
+    font-size: 2em; /* Sous-titre plus lisible */
+    margin: 0;
+    padding: 10px;
+}
+
+/* Conteneur des factures */
+.bills-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.bill-column {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    width: 30%;
+    background-color: #f9f9f9;
+    font-size: 1.2em; /* Texte général plus grand */
+    align-items: center;
+    justify-content: space-between;
+}
+.bill-column img {
+    width: 75%;  /* L'image occupe 100% de la largeur du conteneur */
+    max-width: 1024px;  /* Limite la largeur maximale de l'image */
+    height: auto;  /* Garde les proportions de l'image */
+}
+
+.bill-column h3 {
+    text-align: center;
+    font-size: 1.8em; /* Titres des catégories agrandis */
+    margin-bottom: 10px;
+}
+
+/* Menu déroulant */
+.time-scale {
+    width: 50%;
+    margin-bottom: 10px;
+    padding: 10px; /* Plus d'espace pour le confort */
+    font-size: 1.1em; /* Texte du menu déroulant agrandi */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    text-align: center;
+}
+
+/* Contenu des factures */
+.bill-content {
+    text-align: center;
+    font-size: 2em; /* Contenu agrandi pour une meilleure lisibilité */
+    margin-top: 10px;
+}
