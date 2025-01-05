@@ -287,15 +287,6 @@ def get_logements():
     conn.close()                                                    # se déconnecter
     return [dict(logement) for logement in logements]               # renvoi sous forme de dictionnaire  
 
-# @app.get("/accueil/logements/")
-# async def housing_page(request: Request):
-#     """ Affiche la page des logements présents dans la base."""
-#     housing = get_logements()
-#     template_data = {"request": request, 
-#                      "housing": housing}
-#     return templates.TemplateResponse("housing.html", template_data)
-
-
 @app.get("/logements/{id_logement}/consommation/")
 async def conso_page(request: Request, id_logement: int):
     logement = Logement(id_logement)
