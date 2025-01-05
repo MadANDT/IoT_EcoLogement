@@ -31,8 +31,8 @@ def create_table_factures(c: sqlite3.Connection.cursor):
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             id_logement INTEGER,  
             nom TEXT NOT NULL,
-            montant FLOAT NOT NULL,
-            valeur_consommee FLOAT,
+            montant FLOAT NOT NULL DEFAULT 0.0,
+            valeur_consommee FLOAT DEFAULT 0.0,
             FOREIGN KEY (id_logement) REFERENCES logements(id))""")
     
 def create_table_logements(c: sqlite3.Connection.cursor):
@@ -139,7 +139,7 @@ def init_pieces(c: sqlite3.Connection.cursor, nb_pieces_max: int = 3):
             c.execute(f"INSERT INTO pieces(id_logement, nom, coordonnee_x, coordonnee_y, coordonnee_z) VALUES (?, ?, ?, ?, ?)", 
                 (_['id'], "piece_" + f"{chr(ord('A') + p)}", 0, 0, 0))
 
-def init_capteurs(c: sqlite3.Connection.cursor, nb_capteurs_max: int = 2):
+def init_capteurs(c: sqlite3.Connection.cursor, nb_capteurs_max: int = 3):
     """Crée un état initial de la table des capteurs en attribuant aléatoirement 1 à nb_capteurs_max (2 par défaut) capteurs à chaque pièce.
     Entrées: `c` (Curseur SQLite connecté à la BdD), `nb_capteurs_max` (entier, nombre maximal de capteurs par pièce)
     Sorties: Aucune (remplissage en place)"""
@@ -151,7 +151,7 @@ def init_capteurs(c: sqlite3.Connection.cursor, nb_capteurs_max: int = 2):
         nb_capteurs = R.randint(1, nb_capteurs_max)  
         id_types_capteurs_a_ajouter = [liste_types_capteurs[R.randint(0, nb_types_capteurs - 1)]['id'] for _ in range(nb_capteurs)]
         cap_ou_act = [dict(row) for row in c.execute(f"SELECT id, cap_ou_act FROM types_capteurs") if row['id'] in id_types_capteurs_a_ajouter]
-        capteurs_a_ajouter = [(_['id'], id_piece['id'], 80) for _ in cap_ou_act]    # Port 80: typique pour la communication web
+        capteurs_a_ajouter = [(_['id'], id_piece['id'], R.randint(80, 255)) for _ in cap_ou_act]    # Port 80: typique pour la communication web
         c.executemany(f"INSERT INTO capteurs(id_type_capteur, id_piece, port_communication_serveur) VALUES (?, ?, ?)", capteurs_a_ajouter)
 
 def generer_mesure(valeur_init: int | float, type_capteur: int, dic_type_capteurs) -> float | None:
@@ -176,7 +176,7 @@ def generer_mesure(valeur_init: int | float, type_capteur: int, dic_type_capteur
             return None
     return None
 
-def init_mesures(c: sqlite3.Connection.cursor, nb_mesures: int):
+def init_mesures(c: sqlite3.Connection.cursor, nb_mesures: int = 1):
     """Crée un état "statique" de la table des mesures en attribuant des mesures à tous les capteurs de la base.
     Entrées:    `c` (Curseur SQLite connecté à la BdD),
                 `nb_mesures` (int, désigne le nombre de mesures à associer à chaque capteur)
@@ -290,6 +290,110 @@ def init_mesures(c: sqlite3.Connection.cursor, nb_mesures: int):
                 c.execute(f"INSERT INTO mesures(valeur, id_capteur) VALUES (?, ?)", (mesure, id_cap))
         # breakpoint()
 
+def reduction_conso(categorie: str, n: int):
+    """ Détermine la réduction de consommation selon un nombre `n` de capteurs et
+      la `catégorie`.
+    Entrées: `categorie` (string, représente la catégorie de consommation: chauf, elec, eau)
+            `n` (entier, représente le nombre de capteurs participant à la réduction)
+    Sorties: float, la réduction en pourcentage apportée par les n capteurs, arrondie au centième)
+    """
+    if (type(categorie) == str and categorie != ''):
+        match categorie:
+            # variables en DUR -- facteur k = -0.5 dans les expo négatives
+            case 'chauffage':   # plafond de 15% d'économies réalisables
+                return round(15 * (1 - M.exp(-0.5 * n)), 2)
+            case 'electricite':    # plafond de 10% d'économies réalisables
+                return round(10 * (1 - M.exp(-0.5 * n)), 2)
+            case 'eau':     # plafond de 20% d'économies réalisables
+                return round(20 * (1 - M.exp(-0.5 * n)), 2)
+            case _:
+                return 0.0
+    return 0.0
+
+def init_factures(c: sqlite3.Connection.cursor):
+    """Crée un état "statique" de la table des factures en attribuant des factures d'électricité, d'eau et de climatisation/chauffage
+    à tous les logements de la base.
+    Entrées:    `c` (Curseur SQLite connecté à la BdD)
+    Sorties: Aucune (remplissage en place)"""
+    # On vide la table si elle existe, ce qui fait qu'à chaque appel, on aura des valeurs actualisées
+    drop_table(c, "factures")
+    # et on la recrée ensuite
+    create_table_factures(c)
+    # On génère ensuite un dictionnaire de dictionnaires, chaque clé est l'ID d'un logement et les valeurs sont
+    # les listes des IDs des pièces et capteurs attachés
+    dic_logements = {logement['id']: {'pieces': [], 'capteurs': []}
+        for logement in c.execute(f"SELECT id FROM logements").fetchall()}
+    # ↓ complète la liste des pièces attachées au logement
+    for id_logement in dic_logements:
+        dic_logements[id_logement]['pieces'] = [piece['id'] 
+        for piece in c.execute(f"SELECT id FROM pieces WHERE id_logement = {id_logement}").fetchall()] 
+    # ↓ complète la liste des capteurs rattachés au logement
+    for id_logement in dic_logements:
+        for id_piece in dic_logements[id_logement]['pieces']:
+            dic_logements[id_logement]['capteurs'] += [(capteur['id'], capteur['id_type_capteur'])
+            for capteur in c.execute(f"SELECT id, id_type_capteur FROM capteurs WHERE id_piece = {id_piece}").fetchall()]
+
+    # Variables EN DUR
+    # Dictionnaire décrivant la consommation moyenne d'un Français: 
+    # les clés représentent différentes catégories: éléctricité, chauffage/climatisation, eau; 
+    # chaque valeur est un dictionnaire: consommation en kWh/jour, kWh/semaine et kWh/mois,
+    # la consommation est en L pour l'eau.
+    consommation_moy_FR = {  
+        'electricite':  {   'jour': 13.3, 'semaine': 93.1, 'mois': 405.2   },
+        'chauffage':    {   'jour': 9.0, 'semaine': 63.0, 'mois': 274.60   },
+        'eau':          {   'jour': 150, 'semaine': 1050, 'mois': 4500   }}
+    # Dictionnaire décrivant la facturation moyenne d'un Français: 
+    # les clés représentent différentes catégories: éléctricité, chauffage, eau; 
+    # chaque valeur est un dictionnaire: facturation en  €/jour, €/semaine et €/mois.
+    # facturation_moy_FR = {  
+    #     'electricite':  {   'jour': 2.52, 'semaine': 17.63, 'mois': 76.70   },
+    #     'chauffage':    {   'jour': 1.70, 'semaine': 11.92, 'mois': 51.98   },
+    #     'eau':          {   'jour': 0.45, 'semaine': 3.15, 'mois': 13.50   }}
+    # Dictionnaire décrivant la tarification MOYENNE de l'énergie en France: 
+    # les clés représentent différentes catégories: éléctricité, chauffage, eau; 
+    # chaque valeur est un flottant: facturation en  €/kWh (éléctricité, chauffage/climatisation), €/L (eau)
+    facturation_FR = {'electricite': 0.1893, 'chauffage': 0.1893, 'eau': 0.003}
+
+    # Approximation: on suppose p personnes/logement
+    # compter le nombre p de pièces/logement → multiplier la conso par p (OK)
+    #utiliser: len(dic_logements[id_logement]['pieces'])
+    # compter les nombres de capteurs reliés respectivement à électricité, chauffage/climatisation, et eau.
+    for id_logement in dic_logements:
+        dic_logements[id_logement]['type_capteurs'] = {'chauffage': 0, 'eau': 0, 'electricite': 0}        #initialisation
+        defaut = {'chauffage': 0.0, 'eau': 0.0, 'electricite': 0.0}   #dictionnaire par défaut            #||
+        dic_logements[id_logement]['consommation'] = {'jour': defaut, 'semaine': defaut, 'mois': defaut}  #||
+        dic_logements[id_logement]['facturation'] = {'jour': defaut, 'semaine': defaut, 'mois': defaut}   #||
+        type_capteurs = dic_logements[id_logement]['type_capteurs']
+        consommation = dic_logements[id_logement]['consommation']
+        facturation = dic_logements[id_logement]['facturation']
+        liste_capteurs = dic_logements[id_logement]['capteurs']
+        for _, id_type_cap in liste_capteurs:
+            if id_type_cap in [1, 2, 3, 4, 11]:     #variables EN DUR
+                type_capteurs['chauffage'] += 1
+            if id_type_cap in [9, 10, 13]:     #variables EN DUR
+                type_capteurs['eau'] += 1
+            if id_type_cap in [5, 6, 7, 8, 12, 14]:     #variables EN DUR
+                type_capteurs['electricite'] += 1
+        # Après comptage des nombres de capteurs/catégorie, on estime leur impact sur la consommation et donc sur la facturation
+        categories, duree = ['chauffage', 'eau', 'electricite'], ['jour', 'semaine', 'mois']
+        for d in duree:
+            for cat in categories:
+                # ayant supposé autant de pièces p que de personnes/logement, 
+                # on consomme aléatoirement entre la conso. moyenne et p * conso. moyenne (pourquoi pas ?)
+                conso_aleatoire = round(R.uniform(consommation_moy_FR[cat][d], consommation_moy_FR[cat][d] * len(dic_logements[id_logement]['pieces'])), 2)
+                # appliquer une baisse de conso selon nombre de capteurs par catégories
+                consommation[d][cat] = round(consommation_moy_FR[cat][d] * (1 - reduction_conso(cat, type_capteurs[cat]) / 100), 2)
+                # appliquer la facturation associée
+                facturation[d][cat] = round(consommation[d][cat] * facturation_FR[cat], 2)
+
+                #préparer les données à insérer: 
+                # ID du logement, nom de la facture, montant (valeur consommée pondérée par une taxe arbitraire), valeur consommée
+                duree_facture = (lambda key, dic: dic[key])(d, {'jour': 'quotidien', 'semaine': 'hebdomadaire', 'mois': 'mensuel'})
+                donnees = (id_logement, ",".join([cat, duree_facture]), round(facturation[d][cat] * 1.25, 2), facturation[d][cat])
+                #générer la facture
+                c.execute(f"INSERT INTO factures(id_logement, nom, montant, valeur_consommee) VALUES (?, ?, ?, ?)", donnees)
+
+
 # ==== FIN MES FONCTIONS ==== #
 
 
@@ -327,14 +431,16 @@ def main():
     # 4 - Nous ajoutons les pièces pour chaque logement
     init_pieces(c, 3)
     
-    # 5 - Nous ajoutons des capteurs dans les pièces et nous les lions à la table des types de capteurs
-    # Dans ce qui suit: ''capteurs'' désigne les capteurs comme les actionneurs
-    init_capteurs(c, 2)
+    # 5 - Nous ajoutons des capteurs* dans les pièces selon les types disponibles dans la table des types de capteurs
+    # *: ''capteurs'' désigne les capteurs comme les actionneurs
+    init_capteurs(c, 3)
 
-    # 6 - Nous ajoutons des mesures aux capteurs de chaque logement; ici, 2 mesures par capteur.
-    # breakpoint()
-    init_mesures(c, 2)
+    # 6 - Nous ajoutons des mesures aux capteurs de chaque logement; 
+    # ici, 1 mesure par capteur.
+    init_mesures(c)
 
+    # 7 - Nous ajoutons des factures liés aux catégories de capteurs de chaque logement
+    init_factures(c)
     # ======== • ======== • ======== • ======== • ======== #
     # Fermeture de la base de données
     conn.commit()
