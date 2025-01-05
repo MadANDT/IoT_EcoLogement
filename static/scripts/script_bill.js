@@ -1,37 +1,7 @@
-// document.addEventListener("DOMContentLoaded", () => {
-//     const timeScaleSelectors = document.querySelectorAll(".time-scale");
-  
-//     timeScaleSelectors.forEach((selector) => {
-//       selector.addEventListener("change", (event) => {
-//         const category = event.target.dataset.category;
-//         const timeScale = event.target.value;
-  
-//         // Obtenir la facture correspondante dans la variable `factures`
-//         const selectedBill = factures[timeScale][category];
-//         //Vérifier que cette facture existe
-//         if (!selectedBill) {
-//             console.error(`Données manquantes pour ${category} à l'échelle ${timeScale}`);
-//             return;
-//         }
+// Charger la bibliothèque Google Charts
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(initChart);
 
-//         // Mettre à jour le contenu de la facture (montants et consommations)
-//         // const billContentDiv = document.getElementById(`bill-${category}`);
-//         if (selectedBill) {
-//         //   billContentDiv.innerHTML = `
-//         //     <p><strong>Montant :</strong> ${selectedBill.montant.toFixed(2)} €</p>
-//         //     <p><strong>Consommation :</strong> ${selectedBill.valeur_consommee.toFixed(2)}</p>
-//         //   `;
-//             const montantElement = document.getElementById(`montant-${category}`);
-//             const consommationElement = document.getElementById(`consommation-${category}`);
-//             montantElement.innerHTML = `<strong>Montant :</strong> ${selectedBill.montant.toFixed(2)} €`;
-//             consommationElement.innerHTML = `<strong>Consommation :</strong> ${selectedBill.valeur_consommee.toFixed(2)}`;
-//         } else {
-//           billContentDiv.innerHTML = "<p>Aucune donnée disponible.</p>";
-//         }
-//       });
-//     });
-//   });
-  
 document.addEventListener("DOMContentLoaded", () => {
     // Initialiser les valeurs par défaut
     initializeBills();
@@ -48,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
             updateBill(category, timeScale);
         });
     });
+
+    initChart()
 });
 
 /**
@@ -90,3 +62,41 @@ const logo = document.getElementById("logo");
 logo.addEventListener('click', () => {
     window.location.href = `/accueil/`;
 });
+
+
+// Données passées depuis Python
+// const bills = {{ factures|tojson }};
+let selectedScale = 'quotidien'; // Échelle de temps par défaut
+function initChart() {
+    drawChart(selectedScale); // Dessiner le graphique avec l'échelle par défaut
+}
+
+function drawChart(scale) {
+    const data = bills[scale];
+    const chartData = google.visualization.arrayToDataTable([
+        ['Catégorie', 'Montant (€)'],
+        ['Chauffage', data['chauffage']['montant']],
+        ['Eau', data['eau']['montant']],
+        ['Électricité', data['electricite']['montant']]
+    ]);
+    const options = {
+        title: `Répartition du coût des factures (${scale})`,
+        is3D: true,
+        pieSliceText: 'value',
+        chartArea: {width: '80%', height: '80%'},
+        titleTextStyle: {
+            fontSize: 50, // Taille de la police
+            bold: true, // Gras
+            color: '#333', // Couleur
+            fontName: 'Sans-serif' // Police
+        }
+    };
+    const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    chart.draw(chartData, options);
+}
+
+// Fonction pour gérer les changements d'échelle
+function changeScale(newScale) {
+    selectedScale = newScale; // Mettre à jour l'échelle sélectionnée
+    drawChart(selectedScale); // Redessiner le graphique
+}

@@ -13,6 +13,8 @@
    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='images/logo_i_leaf_without_name.svg') }}">
  </head>
  <body>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
         const bills = {{ factures|tojson }};
         console.log(bills)
@@ -24,50 +26,64 @@
    </div>
    <h2 style="text-align: center;">Logement: "{{ nom_logement }}"</h2>
    
-   <div class="bills-container">
-    <div class="bill-column">
-        <h3>Eau</h3>
-        <select class="time-scale" id="select-eau" data-category="eau">
-            <option value="quotidien" selected>Quotidien</option>
-            <option value="hebdomadaire">Hebdomadaire</option>
-            <option value="mensuel">Mensuel</option>
-        </select>
-        <div class="bill-content">
-            <p id="montant-eau"><strong>Montant :</strong> ... €</p>
-            <p id="consommation-eau"><strong>Consommation :</strong> ...</p>
-            <img src="{{ url_for('static', path='images/bill_page/eau.svg') }}" alt="Consommation en eau">
+    <div class="bills-container">
+        <div class="bill-column">
+            <h3>Eau</h3>
+            <select class="time-scale" id="select-eau" data-category="eau">
+                <option value="quotidien" selected>Quotidien</option>
+                <option value="hebdomadaire">Hebdomadaire</option>
+                <option value="mensuel">Mensuel</option>
+            </select>
+            <div class="bill-content">
+                <p id="montant-eau"><strong>Montant :</strong> ... €</p>
+                <p id="consommation-eau"><strong>Consommation :</strong> ...</p>
+                <img src="{{ url_for('static', path='images/bill_page/eau.svg') }}" alt="Consommation en eau">
+            </div>
         </div>
-        
+        <div class="bill-column">
+            <h3>Chauffage/Climatisation</h3>
+            <select class="time-scale" id="select-chauffage" data-category="chauffage">
+                <option value="quotidien" selected>Quotidien</option>
+                <option value="hebdomadaire">Hebdomadaire</option>
+                <option value="mensuel">Mensuel</option>
+            </select>
+            <div class="bill-content">
+                <p id="montant-chauffage"><strong>Montant :</strong> ... €</p>
+                <p id="consommation-chauffage"><strong>Consommation :</strong> ... </p>
+                <img src="{{ url_for('static', path='images/bill_page/chauffage.svg') }}" alt="Consommation en chauffage/climatisation">
+            </div>    
+        </div>
+        <div class="bill-column">
+            <h3>Électricité</h3>
+            <select class="time-scale" id="select-electricite" data-category="electricite">
+                <option value="quotidien" selected>Quotidien</option>
+                <option value="hebdomadaire">Hebdomadaire</option>
+                <option value="mensuel">Mensuel</option>
+            </select>
+            <div class="bill-content">
+                <p id="montant-electricite"><strong>Montant :</strong> ... €</p>
+                <p id="consommation-electricite"><strong>Consommation :</strong> ...</p>
+                <img src="{{ url_for('static', path='images/bill_page/electricite.svg') }}" alt="Consommation en électricité">
+            </div>
+        </div>
     </div>
-    <div class="bill-column">
-        <h3>Chauffage/Climatisation</h3>
-        <select class="time-scale" id="select-chauffage" data-category="chauffage">
-            <option value="quotidien" selected>Quotidien</option>
-            <option value="hebdomadaire">Hebdomadaire</option>
-            <option value="mensuel">Mensuel</option>
-        </select>
-        <div class="bill-content">
-            <p id="montant-chauffage"><strong>Montant :</strong> ... €</p>
-            <p id="consommation-chauffage"><strong>Consommation :</strong> ... </p>
-            <img src="{{ url_for('static', path='images/bill_page/chauffage.svg') }}" alt="Consommation en chauffage/climatisation">
+    <br>
+    
+    <div class="selector-and-chart" style="align-items: center;">
+        <!-- Div pour le sélecteur d'échelle -->
+        <div style="margin: 20px auto; text-align: center;">
+            <label for="scale-select" style="font-size: 2em;">Choisir l'échelle de temps : </label>
+            <select id="scale-select" onchange="changeScale(this.value)" style="font-size: 2em; padding: 5px; margin-left: 10px;">
+                <option value="quotidien">Quotidienne</option>
+                <option value="hebdomadaire">Hebdomadaire</option>
+                <option value="mensuel">Mensuelle</option>
+            </select>
         </div>
-        
+        <!-- Div pour le diagramme -->
+        <div class="chart-container">
+            <div id="chart_div" style="margin: 20px auto; width: 75%; height: 600px;"></div>
+        </div>
     </div>
-    <div class="bill-column">
-        <h3>Électricité</h3>
-        <select class="time-scale" id="select-electricite" data-category="electricite">
-            <option value="quotidien" selected>Quotidien</option>
-            <option value="hebdomadaire">Hebdomadaire</option>
-            <option value="mensuel">Mensuel</option>
-        </select>
-        <div class="bill-content">
-            <p id="montant-electricite"><strong>Montant :</strong> ... €</p>
-            <p id="consommation-electricite"><strong>Consommation :</strong> ...</p>
-            <img src="{{ url_for('static', path='images/bill_page/electricite.svg') }}" alt="Consommation en électricité">
-        </div>
-        
-   </div>
-   </div>
  </body>
  </html>
  
